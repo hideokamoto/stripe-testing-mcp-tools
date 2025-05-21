@@ -1,5 +1,5 @@
 {
-  "name": "Stripe Testing tools",
+  "name": "stripe-testing-tools",
   "version": "0.1.0",
   "description": "Simply testing helpers for your stripe integrations",
   "private": true,
@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "stripe": "^18.1.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -7,22 +7,11 @@
 
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { logger } from "./logger.js";
+import Stripe from 'stripe';
 import { z } from "zod";
 
-/**
- * Type alias for a note object.
- */
-type Note = { title: string, content: string };
-
-/**
- * Simple in-memory storage for notes.
- * In a real implementation, this would likely be backed by a database.
- */
-const notes: { [id: string]: Note } = {
-  "1": { title: "First Note", content: "This is note 1" },
-  "2": { title: "Second Note", content: "This is note 2" }
-};
-
+const STRIPE_API_VERSION: Stripe.StripeConfig['apiVersion'] =  '2025-04-30.basil'
 /**
  * Create an MCP server
  */
@@ -31,103 +20,104 @@ const server = new McpServer({
   version: "0.1.0",
 });
 
-/**
- * Define notes resource
- */
-server.resource(
-  "notes",
-  new ResourceTemplate("note:///{id}", {
-    list: async () => {
-      return {
-        resources: Object.entries(notes).map(([id, note]) => ({
-          uri: `note:///${id}`,
-          mimeType: "text/plain",
-          name: note.title,
-          description: `A text note: ${note.title}`
-        }))
-      };
-    }
-  }),
-  async (uri, params) => {
-    const id = String(params.id);
-    const note = notes[id];
-    
-    if (!note) {
-      throw new Error(`Note ${id} not found`);
-    }
-    
-    return {
-      contents: [{
-        uri: uri.toString(),
-        mimeType: "text/plain",
-        text: note.content
-      }]
-    };
+const createStripeClient = (apiKey?: string) => {
+  if (!apiKey) {
+    throw new Error("No Stripe secret key found")
   }
-);
+  if (apiKey.includes("live")) {
+    throw new Error("You cannot use a live Stripe secret key for testing")
+  }
+  const stripe = new Stripe(apiKey, { apiVersion: '2025-04-30.basil', appInfo: { name: "stripe-testing-tools-mcp" , version: "0.1.0" } });
+  return stripe
+}
 
-/**
- * Define create_note tool
- */
 server.tool(
-  "create_note",
+  "create_stripe_test_subscription",
   {
-    title: z.string().min(1, "Title is required"),
-    content: z.string().min(1, "Content is required")
+    customer: z.string().describe("The ID of the customer to create the subscription for."),
+    proration_behavior: z
+      .enum(['create_prorations', 'none', 'always_invoice'])
+      .optional()
+      .describe(
+        'Determines how to handle prorations when the subscription items change.'
+      ),
+    items: z
+      .array(
+        z.object({
+          price: z
+            .string()
+            .optional()
+            .describe('The ID of the price.'),
+          quantity: z
+            .number()
+            .int()
+            .min(1)
+            .optional()
+            .describe('The quantity of the plan to subscribe to.'),
+        })
+      )
+      .describe('A list of subscription items.'),
   },
-  async ({ title, content }: { title: string, content: string }) => {
-    const id = String(Object.keys(notes).length + 1);
-    notes[id] = { title, content };
-    
+  async ({customer, items, proration_behavior: prorationBehavior}) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY)
+    const subscriptionCreationParams: Stripe.SubscriptionCreateParams = {
+      customer: customer,
+      items: items,
+    }
+    if (prorationBehavior) {
+      subscriptionCreationParams.proration_behavior = prorationBehavior
+    }
+
+    const subscription = await stripe.subscriptions.create(subscriptionCreationParams)
+    return {
+      content: [{ type: "text", text: `Created subscription ${subscription.id}` }]
+    }
+  }
+)
+
+server.tool(
+  "create_stripe_test_customers",
+  {
+    number: z.number().default(1).describe("The number of customers to create"),
+    payment_method_id: z.string().optional().describe("The payment method to use for the customers"),
+    name: z.string().optional().describe("The name of the customers"),
+    email: z.string().optional().describe("The email of the customers"),
+    description: z.string().optional().describe("The description of the customers"),
+  },
+  async ({ number, payment_method_id: paymentMethodId, name, email, description }) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY)
+    const customerCreationParams: Stripe.CustomerCreateParams = {
+      metadata: {
+        generator: "stripe-testing-tools-mcp"
+      }
+    }
+    if (paymentMethodId) {
+      customerCreationParams.payment_method = paymentMethodId
+    }
+    if (name) {
+      customerCreationParams.name = name
+    }
+    if (email) {
+      customerCreationParams.email = email
+    }
+    if (description) {
+      customerCreationParams.description = description
+    }
+
+    const customerIds: string[] = []
+    for (let i = 0; i < number; i++) {
+      const customer = await stripe.customers.create(customerCreationParams)
+      customerIds.push(customer.id)
+    }
     return {
       content: [{
         type: "text",
-        text: `Created note ${id}: ${title}`
+        text: `Created ${customerIds.length} customers: ${customerIds.join(", ")}`
       }]
     };
   }
 );
 
-/**
- * Define summarize_notes prompt
- */
-server.prompt(
-  "summarize_notes",
-  {},
-  async () => {
-    const embeddedNotes = Object.entries(notes).map(([id, note]) => ({
-      type: "resource" as const,
-      resource: {
-        uri: `note:///${id}`,
-        mimeType: "text/plain",
-        text: note.content
-      }
-    }));
-    
-    return {
-      messages: [
-        {
-          role: "user",
-          content: {
-            type: "text",
-            text: "Please summarize the following notes:"
-          }
-        },
-        ...embeddedNotes.map(note => ({
-          role: "user" as const,
-          content: note
-        })),
-        {
-          role: "user",
-          content: {
-            type: "text",
-            text: "Provide a concise summary of all the notes above."
-          }
-        }
-      ]
-    };
-  }
-);
 
 /**
  * Start the server using stdio transport.
