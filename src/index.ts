@@ -7,11 +7,9 @@
 
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { logger } from "./logger.js";
 import Stripe from 'stripe';
 import { z } from "zod";
 
-const STRIPE_API_VERSION: Stripe.StripeConfig['apiVersion'] =  '2025-04-30.basil'
 /**
  * Create an MCP server
  */
