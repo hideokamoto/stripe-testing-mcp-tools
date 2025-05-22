@@ -8,7 +8,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import Stripe from 'stripe';
-import { z } from 'zod';
+import { object, z } from 'zod';
 
 /**
  * Create an MCP server
@@ -111,6 +111,64 @@ server.tool(
     };
   }
 );
+
+server.tool('archive_stripe_test_products', {
+  product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
+  urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+}, async ({ product_ids: productIds, urls }) => {
+  const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+  let productIdsToDelete: string[] = []
+  if (productIds) {
+    productIdsToDelete = productIds
+  }
+  if (urls) {
+    for await (const url of urls) {
+      const { data: products } = await stripe.products.list({url})
+      productIdsToDelete.push(...products.map(product => product.id))
+    }
+  }
+  for (const productId of productIdsToDelete) {
+    await stripe.products.update(productId, {active: false});
+  }
+  return {
+    content: [{ type: 'text', text: `Archived ${productIdsToDelete.length} products` }],
+  }
+})
+
+server.tool('delete_stripe_test_products', {
+  product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
+  urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+}, async ({ product_ids: productIds, urls }) => {
+  const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+  let productIdsToDelete: string[] = []
+  if (productIds) {
+    productIdsToDelete = productIds
+  }
+  if (urls) {
+    for await (const url of urls) {
+      const { data: products } = await stripe.products.list({url})
+      productIdsToDelete.push(...products.map(product => product.id))
+    }
+  }
+  for (const productId of productIdsToDelete) {
+    await stripe.products.del(productId);
+  }
+  return {
+    content: [{ type: 'text', text: `Deleted ${productIdsToDelete.length} products` }],
+  }
+})
+
+server.tool('delete_stripe_test_customers', {
+  customer_ids: z.array(z.string()).describe('The IDs of the customers to delete'),
+}, async ({ customer_ids: customerIds }) => {
+  const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+  for (const customerId of customerIds) {
+    await stripe.customers.del(customerId);
+  }
+  return {
+    content: [{ type: 'text', text: `Deleted ${customerIds.length} customers` }],
+  }
+})
 
 server.tool(
   'create_stripe_test_customers',
