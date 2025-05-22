@@ -32,6 +32,47 @@ const createStripeClient = (apiKey?: string) => {
   return stripe;
 };
 
+/**
+ * stripeのtest clockを使ったシュミレーションを実行するMCP Toolを作りたい。
+ * APIがあるので、それを利用して時間を動かす感じ。
+ */
+
+server.tool(
+  'create_stripe_test_clock',
+  {
+    frozen_time: z.number().describe('Unix timestamp for the initial frozen time of the test clock'),
+    name: z.string().optional().describe('Optional name for the test clock'),
+  },
+  async ({ frozen_time, name }) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+    const params = {
+      frozen_time,
+      name,
+    };
+    const testClock = await stripe.testHelpers.testClocks.create(params);
+    return {
+      content: [{ type: 'text', text: `Test clock ${testClock.id} has been created. Initial time: ${new Date(testClock.frozen_time * 1000).toISOString()}` }],
+    };
+  }
+);
+
+server.tool(
+  'advance_stripe_test_clock',
+  {
+    test_clock_id: z.string().describe('The ID of the test clock to advance'),
+    frozen_time: z.number().describe('Unix timestamp to advance the clock to'),
+  },
+  async ({ test_clock_id, frozen_time }) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+    const testClock = await stripe.testHelpers.testClocks.advance(test_clock_id, {
+      frozen_time,
+    });
+    return {
+      content: [{ type: 'text', text: `Test clock ${testClock.id} has been advanced to ${new Date(testClock.frozen_time * 1000).toISOString()}. Status: ${testClock.status}` }],
+    };
+  }
+);
+
 server.tool(
   'create_stripe_test_subscription',
   {
@@ -82,8 +123,9 @@ server.tool(
     name: z.string().optional().describe('The name of the customers'),
     email: z.string().optional().describe('The email of the customers'),
     description: z.string().optional().describe('The description of the customers'),
+    test_clock: z.string().optional().describe('The ID of the test clock to associate with the customers'),
   },
-  async ({ number, payment_method_id: paymentMethodId, name, email, description }) => {
+  async ({ number, payment_method_id: paymentMethodId, name, email, description, test_clock }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
     const customerCreationParams: Stripe.CustomerCreateParams = {
       metadata: {
@@ -102,6 +144,17 @@ server.tool(
     if (description) {
       customerCreationParams.description = description;
     }
+    if (test_clock) {
+      if (number > 3) {
+        return {
+          content: [{
+            type: 'text',
+            text: "You can not associate more than 3 customers to a test clock."
+          }]
+        }
+      }
+      customerCreationParams.test_clock = test_clock;
+    }
 
     const customerIds: string[] = [];
     for (let i = 0; i < number; i++) {
@@ -112,7 +165,10 @@ server.tool(
       content: [
         {
           type: 'text',
-          text: `Created ${customerIds.length} customers: ${customerIds.join(', ')}`,
+          text: JSON.stringify({
+            message: `Created ${customerIds.length} customers: ${customerIds.join(', ')}${test_clock ? `\nAssociated with test clock ${test_clock}` : ''}`,
+            customerIds,
+          })
         },
       ],
     };
