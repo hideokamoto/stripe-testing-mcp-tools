@@ -105,21 +105,13 @@ Creates a test subscription for a customer.
 
 ### Installation
 
-1. Clone this repository:
+No installation is required! You can use this MCP server directly with npx:
+
 ```bash
-git clone <repository-url>
-cd stripe-testing-tools
+npx stripe-test-mcp
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Build the server:
-```bash
-npm run build
-```
+This will automatically download and run the latest version of the server.
 
 ### Configuration
 
@@ -143,9 +135,9 @@ Add the server to your Claude Desktop configuration:
 ```json
 {
   "mcpServers": {
-    "stripe-testing-tools": {
-      "command": "node",
-      "args": ["/path/to/stripe-testing-tools/build/index.js"],
+    "stripe-test-mcp": {
+      "command": "npx",
+      "args": ["stripe-test-mcp"],
       "env": {
         "STRIPE_API_KEY": "sk_test_your_test_key_here"
       }
@@ -192,8 +184,27 @@ Add the server to your Claude Desktop configuration:
 
 ## Development
 
-For development with auto-rebuild:
+### Local Development
 
+If you want to contribute or modify the server locally:
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd stripe-testing-tools
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Build the server:
+```bash
+npm run build
+```
+
+4. For development with auto-rebuild:
 ```bash
 npm run watch
 ```

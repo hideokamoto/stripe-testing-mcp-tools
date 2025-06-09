@@ -1,8 +1,8 @@
 {
-  "name": "stripe-testing-tools",
+  "name": "stripe-test-mcp",
   "version": "0.1.0",
-  "description": "Simply testing helpers for your stripe integrations",
-  "private": true,
+  "description": "Simply MCP server for testing for your stripe integrations",
+  "private": false,
   "type": "module",
   "bin": {
     "Stripe Testing tools": "./build/index.js"
