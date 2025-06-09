@@ -1,5 +1,7 @@
 # Stripe Testing Tools MCP Server
 
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=stripe-test-mcp&config=eyJjb21tYW5kIjoibnB4IHN0cmlwZS10ZXN0LW1jcCIsImVudiI6eyJTVFJJUEVfQVBJX0tFWSI6InNrX3Rlc3RfeW91cl90ZXN0X2tleV9oZXJlIn19)
+
 A Model Context Protocol (MCP) server that provides testing and debugging tools for Stripe integrations. This server enables developers to efficiently test Stripe workflows, manage test data, and simulate time-based scenarios using Stripe's test helpers.
 
 ## Features
@@ -124,6 +126,12 @@ export STRIPE_API_KEY=sk_test_your_test_key_here
 ```
 
 **Important:** Only test keys are allowed. The server will reject live API keys for security.
+
+#### Cursor
+
+Click this link for adding this MCP server:
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=stripe-test-mcp&config=eyJjb21tYW5kIjoibnB4IHN0cmlwZS10ZXN0LW1jcCIsImVudiI6eyJTVFJJUEVfQVBJX0tFWSI6InNrX3Rlc3RfeW91cl90ZXN0X2tleV9oZXJlIn19)
 
 #### Claude Desktop Configuration
 
