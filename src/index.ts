@@ -81,6 +81,10 @@ server.tool(
       .enum(['create_prorations', 'none', 'always_invoice'])
       .optional()
       .describe('Determines how to handle prorations when the subscription items change.'),
+    payment_method_id: z
+    .string()
+    .optional()
+    .describe('The payment method to use for the subscription'),
     items: z
       .array(
         z.object({
@@ -95,7 +99,7 @@ server.tool(
       )
       .describe('A list of subscription items.'),
   },
-  async ({ customer, items, proration_behavior: prorationBehavior }) => {
+  async ({ customer, items, proration_behavior: prorationBehavior, payment_method_id: paymentMethodId }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
     const subscriptionCreationParams: Stripe.SubscriptionCreateParams = {
       customer: customer,
@@ -104,7 +108,9 @@ server.tool(
     if (prorationBehavior) {
       subscriptionCreationParams.proration_behavior = prorationBehavior;
     }
-
+    if (paymentMethodId) {
+      subscriptionCreationParams.default_payment_method = paymentMethodId;
+    }
     const subscription = await stripe.subscriptions.create(subscriptionCreationParams);
     return {
       content: [{ type: 'text', text: `Created subscription ${subscription.id}` }],
@@ -192,6 +198,9 @@ server.tool(
     };
     if (paymentMethodId) {
       customerCreationParams.payment_method = paymentMethodId;
+      customerCreationParams.invoice_settings = {
+        default_payment_method: paymentMethodId,
+      }
     }
     if (name) {
       customerCreationParams.name = name;
