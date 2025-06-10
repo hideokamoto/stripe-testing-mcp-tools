@@ -5,7 +5,7 @@
   "private": false,
   "type": "module",
   "bin": {
-    "Stripe Testing tools": "./build/index.js"
+    "stripe-test-mcp": "./build/index.js"
   },
   "files": [
     "build"
