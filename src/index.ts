@@ -37,11 +37,19 @@ const createStripeClient = (apiKey?: string) => {
  * APIがあるので、それを利用して時間を動かす感じ。
  */
 
-server.tool(
+server.registerTool(
   'create_stripe_test_clock',
   {
-    frozen_time: z.number().describe('Unix timestamp for the initial frozen time of the test clock'),
-    name: z.string().optional().describe('Optional name for the test clock'),
+    title: 'Create Stripe Test Clock',
+    description: 'Create a new Stripe test clock for time-based testing',
+    inputSchema: {
+      frozen_time: z.number().describe('Unix timestamp for the initial frozen time of the test clock'),
+      name: z.string().optional().describe('Optional name for the test clock'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+    },
   },
   async ({ frozen_time, name }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
@@ -56,11 +64,19 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   'advance_stripe_test_clock',
   {
-    test_clock_id: z.string().describe('The ID of the test clock to advance'),
-    frozen_time: z.number().describe('Unix timestamp to advance the clock to'),
+    title: 'Advance Stripe Test Clock',
+    description: 'Advance a Stripe test clock to a specific time to simulate time progression',
+    inputSchema: {
+      test_clock_id: z.string().describe('The ID of the test clock to advance'),
+      frozen_time: z.number().describe('Unix timestamp to advance the clock to'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+    },
   },
   async ({ test_clock_id, frozen_time }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
@@ -73,31 +89,39 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   'create_stripe_test_subscription',
   {
-    customer: z.string().describe('The ID of the customer to create the subscription for.'),
-    proration_behavior: z
-      .enum(['create_prorations', 'none', 'always_invoice'])
+    title: 'Create Stripe Test Subscription',
+    description: 'Create a new Stripe subscription for testing purposes',
+    inputSchema: {
+      customer: z.string().describe('The ID of the customer to create the subscription for.'),
+      proration_behavior: z
+        .enum(['create_prorations', 'none', 'always_invoice'])
+        .optional()
+        .describe('Determines how to handle prorations when the subscription items change.'),
+      payment_method_id: z
+      .string()
       .optional()
-      .describe('Determines how to handle prorations when the subscription items change.'),
-    payment_method_id: z
-    .string()
-    .optional()
-    .describe('The payment method to use for the subscription'),
-    items: z
-      .array(
-        z.object({
-          price: z.string().optional().describe('The ID of the price.'),
-          quantity: z
-            .number()
-            .int()
-            .min(1)
-            .optional()
-            .describe('The quantity of the plan to subscribe to.'),
-        })
-      )
-      .describe('A list of subscription items.'),
+      .describe('The payment method to use for the subscription'),
+      items: z
+        .array(
+          z.object({
+            price: z.string().optional().describe('The ID of the price.'),
+            quantity: z
+              .number()
+              .int()
+              .min(1)
+              .optional()
+              .describe('The quantity of the plan to subscribe to.'),
+          })
+        )
+        .describe('A list of subscription items.'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+    },
   },
   async ({ customer, items, proration_behavior: prorationBehavior, payment_method_id: paymentMethodId }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
@@ -118,9 +142,17 @@ server.tool(
   }
 );
 
-server.tool('archive_stripe_test_products', {
-  product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
-  urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+server.registerTool('archive_stripe_test_products', {
+  title: 'Archive Stripe Test Products',
+  description: 'Archive (deactivate) Stripe products for testing purposes',
+  inputSchema: {
+    product_ids: z.array(z.string()).optional().describe('The IDs of the products to archive'),
+    urls: z.array(z.string()).optional().describe('The URLs of the products to archive'),
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+  },
 }, async ({ product_ids: productIds, urls }) => {
   const stripe = createStripeClient(process.env.STRIPE_API_KEY);
   let productIdsToDelete: string[] = []
@@ -141,9 +173,17 @@ server.tool('archive_stripe_test_products', {
   }
 })
 
-server.tool('delete_stripe_test_products', {
-  product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
-  urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+server.registerTool('delete_stripe_test_products', {
+  title: 'Delete Stripe Test Products',
+  description: 'Permanently delete Stripe products for testing purposes',
+  inputSchema: {
+    product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
+    urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+  },
 }, async ({ product_ids: productIds, urls }) => {
   const stripe = createStripeClient(process.env.STRIPE_API_KEY);
   let productIdsToDelete: string[] = []
@@ -164,8 +204,16 @@ server.tool('delete_stripe_test_products', {
   }
 })
 
-server.tool('delete_stripe_test_customers', {
-  customer_ids: z.array(z.string()).describe('The IDs of the customers to delete'),
+server.registerTool('delete_stripe_test_customers', {
+  title: 'Delete Stripe Test Customers',
+  description: 'Permanently delete Stripe customers for testing purposes',
+  inputSchema: {
+    customer_ids: z.array(z.string()).describe('The IDs of the customers to delete'),
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+  },
 }, async ({ customer_ids: customerIds }) => {
   const stripe = createStripeClient(process.env.STRIPE_API_KEY);
   for (const customerId of customerIds) {
@@ -176,18 +224,26 @@ server.tool('delete_stripe_test_customers', {
   }
 })
 
-server.tool(
+server.registerTool(
   'create_stripe_test_customers',
   {
-    number: z.number().default(1).describe('The number of customers to create'),
-    payment_method_id: z
-      .string()
-      .optional()
-      .describe('The payment method to use for the customers'),
-    name: z.string().optional().describe('The name of the customers'),
-    email: z.string().optional().describe('The email of the customers'),
-    description: z.string().optional().describe('The description of the customers'),
-    test_clock: z.string().optional().describe('The ID of the test clock to associate with the customers'),
+    title: 'Create Stripe Test Customers',
+    description: 'Create one or more Stripe test customers for testing purposes',
+    inputSchema: {
+      number: z.number().default(1).describe('The number of customers to create'),
+      payment_method_id: z
+        .string()
+        .optional()
+        .describe('The payment method to use for the customers'),
+      name: z.string().optional().describe('The name of the customers'),
+      email: z.string().optional().describe('The email of the customers'),
+      description: z.string().optional().describe('The description of the customers'),
+      test_clock: z.string().optional().describe('The ID of the test clock to associate with the customers'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+    },
   },
   async ({ number, payment_method_id: paymentMethodId, name, email, description, test_clock }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
