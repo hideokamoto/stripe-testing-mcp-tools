@@ -1,4 +1,5 @@
 # Stripe Testing Tools MCP Server
+<a href="https://www.producthunt.com/products/stripe-testing-tools-mcp-server?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-stripe&#0045;testing&#0045;tools&#0045;mcp&#0045;server" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=976365&theme=light&t=1763732445814" alt="Stripe&#0032;Testing&#0032;Tools&#0032;MCP&#0032;Server - Supercharge&#0032;Stripe&#0032;testing&#0032;with&#0032;time&#0032;simulation | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=stripe-test-mcp&config=eyJjb21tYW5kIjoibnB4IHN0cmlwZS10ZXN0LW1jcCIsImVudiI6eyJTVFJJUEVfQVBJX0tFWSI6InNrX3Rlc3RfeW91cl90ZXN0X2tleV9oZXJlIn19)
 
