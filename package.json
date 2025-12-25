@@ -36,7 +36,6 @@
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "npm run format:check",
     "typecheck": "tsc --noEmit",
     "test": "echo 'No tests yet'",
     "release": "np"
