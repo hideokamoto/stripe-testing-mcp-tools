@@ -8,6 +8,20 @@ describe('validateStripeApiKey', () => {
     }).not.toThrow();
   });
 
+  it('"live"を含むが有効なテストAPIキーを受け入れる', () => {
+    expect(() => {
+      validateStripeApiKey('sk_test_for_live_stream');
+    }).not.toThrow();
+    
+    expect(() => {
+      validateStripeApiKey('sk_test_live_testing');
+    }).not.toThrow();
+    
+    expect(() => {
+      validateStripeApiKey('rk_test_live_testing');
+    }).not.toThrow();
+  });
+
   it('APIキーが未定義の場合、エラーを投げる', () => {
     expect(() => {
       validateStripeApiKey(undefined);
@@ -20,15 +34,15 @@ describe('validateStripeApiKey', () => {
     }).toThrow('No Stripe secret key found');
   });
 
-  it('ライブAPIキーを含む場合、エラーを投げる', () => {
+  it('sk_live_形式のライブAPIキーを拒否する', () => {
     expect(() => {
       validateStripeApiKey('sk_live_1234567890');
     }).toThrow('You cannot use a live Stripe secret key for testing');
   });
 
-  it('ライブAPIキーが文字列内に含まれる場合、エラーを投げる', () => {
+  it('rk_live_形式のライブAPIキーを拒否する', () => {
     expect(() => {
-      validateStripeApiKey('prefix_sk_live_suffix');
+      validateStripeApiKey('rk_live_1234567890');
     }).toThrow('You cannot use a live Stripe secret key for testing');
   });
 

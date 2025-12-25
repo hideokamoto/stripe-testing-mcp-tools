@@ -27,7 +27,8 @@ export function validateStripeApiKey(apiKey?: string): void {
   if (!apiKey) {
     throw new Error('No Stripe secret key found');
   }
-  if (apiKey.includes('live')) {
+  // Stripeのライブキーは sk_live_ または rk_live_ で始まる
+  if (apiKey.startsWith('sk_live_') || apiKey.startsWith('rk_live_')) {
     throw new Error('You cannot use a live Stripe secret key for testing');
   }
 }
