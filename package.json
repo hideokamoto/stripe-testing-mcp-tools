@@ -36,7 +36,8 @@
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "echo 'No tests yet'",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "release": "np"
   },
   "dependencies": {
@@ -46,8 +47,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "@vitest/ui": "^4.0.16",
     "np": "^10.2.0",
     "prettier": "^3.2.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.16"
   }
 }
