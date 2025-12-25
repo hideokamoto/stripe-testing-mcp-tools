@@ -18,14 +18,23 @@ const server = new McpServer({
   version: '0.1.0',
 });
 
-const createStripeClient = (apiKey?: string) => {
+/**
+ * Stripe APIキーをバリデーションする純粋関数
+ * @param apiKey Stripe APIキー
+ * @throws Error APIキーが無効な場合
+ */
+export function validateStripeApiKey(apiKey?: string): void {
   if (!apiKey) {
     throw new Error('No Stripe secret key found');
   }
   if (apiKey.includes('live')) {
     throw new Error('You cannot use a live Stripe secret key for testing');
   }
-  const stripe = new Stripe(apiKey, {
+}
+
+const createStripeClient = (apiKey?: string) => {
+  validateStripeApiKey(apiKey);
+  const stripe = new Stripe(apiKey!, {
     apiVersion: '2025-04-30.basil',
     appInfo: { name: 'stripe-testing-tools-mcp', version: '0.1.0' },
   });

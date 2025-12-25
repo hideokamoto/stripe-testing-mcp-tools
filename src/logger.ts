@@ -22,6 +22,35 @@ export interface MCPLoggerOptions {
   includeTimestamp?: boolean;
 }
 
+/**
+ * ログメッセージをフォーマットする純粋関数
+ * @param level ログレベル
+ * @param message ログメッセージ
+ * @param prefix プレフィックス
+ * @param includeTimestamp タイムスタンプを含めるかどうか
+ * @returns フォーマットされたログメッセージ
+ */
+export function formatLogMessage(
+  level: LogLevel,
+  message: string,
+  prefix: string,
+  includeTimestamp: boolean
+): string {
+  const timestamp = includeTimestamp ? `[${new Date().toISOString()}] ` : '';
+  const levelStr = LogLevel[level].padEnd(5);
+  return `${timestamp}[${prefix}] [${levelStr}] ${message}`;
+}
+
+/**
+ * 指定されたログレベルが現在のログレベル以上かどうかを判定する純粋関数
+ * @param messageLevel メッセージのログレベル
+ * @param currentLevel 現在のログレベル
+ * @returns ログを出力すべきかどうか
+ */
+export function shouldLog(messageLevel: LogLevel, currentLevel: LogLevel): boolean {
+  return messageLevel >= currentLevel;
+}
+
 export class MCPLogger {
   private level: LogLevel;
   private logFile: fs.WriteStream | null = null;
@@ -48,13 +77,16 @@ export class MCPLogger {
    * MCPモデルを尊重: stdoutはJSON-RPCレスポンス専用、stderrをログに使用
    */
   private log(level: LogLevel, message: string): void {
-    if (level < this.level) {
+    if (!shouldLog(level, this.level)) {
       return;
     }
 
-    const timestamp = this.includeTimestamp ? `[${new Date().toISOString()}] ` : '';
-    const levelStr = LogLevel[level].padEnd(5);
-    const formattedMessage = `${timestamp}[${this.prefix}] [${levelStr}] ${message}`;
+    const formattedMessage = formatLogMessage(
+      level,
+      message,
+      this.prefix,
+      this.includeTimestamp
+    );
 
     // console.errorを使用してstderrに出力
     console.error(formattedMessage);
