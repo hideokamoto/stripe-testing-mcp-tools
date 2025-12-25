@@ -3,53 +3,23 @@ import { LogLevel, formatLogMessage, shouldLog } from './logger.js';
 
 describe('formatLogMessage', () => {
   it('タイムスタンプを含むログメッセージをフォーマットする', () => {
-    const result = formatLogMessage(
-      LogLevel.INFO,
-      'Test message',
-      'TEST',
-      true
-    );
-    
+    const result = formatLogMessage(LogLevel.INFO, 'Test message', 'TEST', true);
+
     expect(result).toMatch(/^\[.*\] \[TEST\] \[INFO \] Test message$/);
   });
 
   it('タイムスタンプを含まないログメッセージをフォーマットする', () => {
-    const result = formatLogMessage(
-      LogLevel.DEBUG,
-      'Debug message',
-      'APP',
-      false
-    );
-    
+    const result = formatLogMessage(LogLevel.DEBUG, 'Debug message', 'APP', false);
+
     expect(result).toBe('[APP] [DEBUG] Debug message');
   });
 
   it('異なるログレベルで正しくフォーマットする', () => {
-    const debugResult = formatLogMessage(
-      LogLevel.DEBUG,
-      'Debug',
-      'TEST',
-      false
-    );
-    const infoResult = formatLogMessage(
-      LogLevel.INFO,
-      'Info',
-      'TEST',
-      false
-    );
-    const warnResult = formatLogMessage(
-      LogLevel.WARN,
-      'Warn',
-      'TEST',
-      false
-    );
-    const errorResult = formatLogMessage(
-      LogLevel.ERROR,
-      'Error',
-      'TEST',
-      false
-    );
-    
+    const debugResult = formatLogMessage(LogLevel.DEBUG, 'Debug', 'TEST', false);
+    const infoResult = formatLogMessage(LogLevel.INFO, 'Info', 'TEST', false);
+    const warnResult = formatLogMessage(LogLevel.WARN, 'Warn', 'TEST', false);
+    const errorResult = formatLogMessage(LogLevel.ERROR, 'Error', 'TEST', false);
+
     expect(debugResult).toBe('[TEST] [DEBUG] Debug');
     expect(infoResult).toBe('[TEST] [INFO ] Info');
     expect(warnResult).toBe('[TEST] [WARN ] Warn');
@@ -57,19 +27,9 @@ describe('formatLogMessage', () => {
   });
 
   it('異なるプレフィックスで正しくフォーマットする', () => {
-    const result1 = formatLogMessage(
-      LogLevel.INFO,
-      'Message',
-      'PREFIX1',
-      false
-    );
-    const result2 = formatLogMessage(
-      LogLevel.INFO,
-      'Message',
-      'PREFIX2',
-      false
-    );
-    
+    const result1 = formatLogMessage(LogLevel.INFO, 'Message', 'PREFIX1', false);
+    const result2 = formatLogMessage(LogLevel.INFO, 'Message', 'PREFIX2', false);
+
     expect(result1).toBe('[PREFIX1] [INFO ] Message');
     expect(result2).toBe('[PREFIX2] [INFO ] Message');
   });

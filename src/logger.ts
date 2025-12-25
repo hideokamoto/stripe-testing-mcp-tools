@@ -81,12 +81,7 @@ export class MCPLogger {
       return;
     }
 
-    const formattedMessage = formatLogMessage(
-      level,
-      message,
-      this.prefix,
-      this.includeTimestamp
-    );
+    const formattedMessage = formatLogMessage(level, message, this.prefix, this.includeTimestamp);
 
     // console.errorを使用してstderrに出力
     console.error(formattedMessage);
