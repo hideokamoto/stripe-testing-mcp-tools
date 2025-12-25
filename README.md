@@ -264,3 +264,37 @@ The Inspector provides a web interface for testing and debugging MCP tools.
 - Live API keys are blocked with security warnings
 - Test clock customer limits are enforced (max 3 customers per clock)
 - Invalid parameters are validated using Zod schemas
+
+## Claude Skill / Kiro Power
+
+This repository also provides a **Claude Skill** and **Kiro Power** for enhanced workflow guidance.
+
+### Claude Skill
+
+Install the skill to get workflow guidance and best practices for using the MCP tools:
+
+```bash
+# Clone the repository
+git clone https://github.com/hideokamoto/stripe-testing-mcp-tools
+
+# Copy the skill to your Claude Code skills directory
+cp -r stripe-testing-mcp-tools/skills/stripe-testing ~/.claude/skills/
+```
+
+The skill provides:
+- Subscription lifecycle testing workflows
+- Time simulation best practices
+- Test data cleanup guidelines
+
+### Kiro Power
+
+For Kiro IDE users, install the power for one-click MCP setup:
+
+1. Clone this repository
+2. In Kiro IDE, import from local directory: `powers/stripe-testing`
+
+Or import directly from GitHub URL (when supported).
+
+The power includes:
+- Pre-configured MCP server settings
+- Workflow guidance for common testing scenarios
