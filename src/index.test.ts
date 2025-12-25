@@ -12,11 +12,11 @@ describe('validateStripeApiKey', () => {
     expect(() => {
       validateStripeApiKey('sk_test_for_live_stream');
     }).not.toThrow();
-    
+
     expect(() => {
       validateStripeApiKey('sk_test_live_testing');
     }).not.toThrow();
-    
+
     expect(() => {
       validateStripeApiKey('rk_test_live_testing');
     }).not.toThrow();
@@ -50,7 +50,7 @@ describe('validateStripeApiKey', () => {
     expect(() => {
       validateStripeApiKey('sk_test_abcdefghijklmnopqrstuvwxyz');
     }).not.toThrow();
-    
+
     expect(() => {
       validateStripeApiKey('rk_test_1234567890');
     }).not.toThrow();

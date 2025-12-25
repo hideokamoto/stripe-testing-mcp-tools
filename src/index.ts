@@ -53,7 +53,9 @@ server.registerTool(
     title: 'Create Stripe Test Clock',
     description: 'Create a new Stripe test clock for time-based testing',
     inputSchema: {
-      frozen_time: z.number().describe('Unix timestamp for the initial frozen time of the test clock'),
+      frozen_time: z
+        .number()
+        .describe('Unix timestamp for the initial frozen time of the test clock'),
       name: z.string().optional().describe('Optional name for the test clock'),
     },
     annotations: {
@@ -69,7 +71,12 @@ server.registerTool(
     };
     const testClock = await stripe.testHelpers.testClocks.create(params);
     return {
-      content: [{ type: 'text', text: `Test clock ${testClock.id} has been created. Initial time: ${new Date(testClock.frozen_time * 1000).toISOString()}` }],
+      content: [
+        {
+          type: 'text',
+          text: `Test clock ${testClock.id} has been created. Initial time: ${new Date(testClock.frozen_time * 1000).toISOString()}`,
+        },
+      ],
     };
   }
 );
@@ -94,7 +101,12 @@ server.registerTool(
       frozen_time,
     });
     return {
-      content: [{ type: 'text', text: `Test clock ${testClock.id} has been advanced to ${new Date(testClock.frozen_time * 1000).toISOString()}. Status: ${testClock.status}` }],
+      content: [
+        {
+          type: 'text',
+          text: `Test clock ${testClock.id} has been advanced to ${new Date(testClock.frozen_time * 1000).toISOString()}. Status: ${testClock.status}`,
+        },
+      ],
     };
   }
 );
@@ -111,9 +123,9 @@ server.registerTool(
         .optional()
         .describe('Determines how to handle prorations when the subscription items change.'),
       payment_method_id: z
-      .string()
-      .optional()
-      .describe('The payment method to use for the subscription'),
+        .string()
+        .optional()
+        .describe('The payment method to use for the subscription'),
       items: z
         .array(
           z.object({
@@ -133,7 +145,12 @@ server.registerTool(
       destructiveHint: false,
     },
   },
-  async ({ customer, items, proration_behavior: prorationBehavior, payment_method_id: paymentMethodId }) => {
+  async ({
+    customer,
+    items,
+    proration_behavior: prorationBehavior,
+    payment_method_id: paymentMethodId,
+  }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
     const subscriptionCreationParams: Stripe.SubscriptionCreateParams = {
       customer: customer,
@@ -152,87 +169,91 @@ server.registerTool(
   }
 );
 
-server.registerTool('archive_stripe_test_products', {
-  title: 'Archive Stripe Test Products',
-  description: 'Archive (deactivate) Stripe products for testing purposes',
-  inputSchema: {
-    product_ids: z.array(z.string()).optional().describe('The IDs of the products to archive'),
-    urls: z.array(z.string()).optional().describe('The URLs of the products to archive'),
+server.registerTool(
+  'archive_stripe_test_products',
+  {
+    title: 'Archive Stripe Test Products',
+    description: 'Archive (deactivate) Stripe products for testing purposes',
+    inputSchema: {
+      product_ids: z.array(z.string()).optional().describe('The IDs of the products to archive'),
+      urls: z.array(z.string()).optional().describe('The URLs of the products to archive'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+    },
   },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: true,
-  },
-}, async ({ product_ids: productIds, urls }) => {
-  const stripe = createStripeClient(process.env.STRIPE_API_KEY);
-  let productIdsToDelete: string[] = []
-  if (productIds) {
-    productIdsToDelete = productIds
-  }
-  if (urls) {
-    for await (const url of urls) {
-      const { data: products } = await stripe.products.list({url})
-      productIdsToDelete.push(...products.map(product => product.id))
+  async ({ product_ids: productIds, urls }) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+    const productIdsToArchive: string[] = [...(productIds ?? [])];
+    if (urls) {
+      for await (const url of urls) {
+        const { data: products } = await stripe.products.list({ url });
+        productIdsToArchive.push(...products.map(product => product.id));
+      }
     }
+    await Promise.all(
+      productIdsToArchive.map(productId => stripe.products.update(productId, { active: false }))
+    );
+    return {
+      content: [{ type: 'text', text: `Archived ${productIdsToArchive.length} products` }],
+    };
   }
-  for (const productId of productIdsToDelete) {
-    await stripe.products.update(productId, {active: false});
-  }
-  return {
-    content: [{ type: 'text', text: `Archived ${productIdsToDelete.length} products` }],
-  }
-})
+);
 
-server.registerTool('delete_stripe_test_products', {
-  title: 'Delete Stripe Test Products',
-  description: 'Permanently delete Stripe products for testing purposes',
-  inputSchema: {
-    product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
-    urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+server.registerTool(
+  'delete_stripe_test_products',
+  {
+    title: 'Delete Stripe Test Products',
+    description: 'Permanently delete Stripe products for testing purposes',
+    inputSchema: {
+      product_ids: z.array(z.string()).optional().describe('The IDs of the products to delete'),
+      urls: z.array(z.string()).optional().describe('The URLs of the products to delete'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+    },
   },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: true,
-  },
-}, async ({ product_ids: productIds, urls }) => {
-  const stripe = createStripeClient(process.env.STRIPE_API_KEY);
-  let productIdsToDelete: string[] = []
-  if (productIds) {
-    productIdsToDelete = productIds
-  }
-  if (urls) {
-    for await (const url of urls) {
-      const { data: products } = await stripe.products.list({url})
-      productIdsToDelete.push(...products.map(product => product.id))
+  async ({ product_ids: productIds, urls }) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+    const productIdsToDelete: string[] = [...(productIds ?? [])];
+    if (urls) {
+      for await (const url of urls) {
+        const { data: products } = await stripe.products.list({ url });
+        productIdsToDelete.push(...products.map(product => product.id));
+      }
     }
+    await Promise.all(productIdsToDelete.map(productId => stripe.products.del(productId)));
+    return {
+      content: [{ type: 'text', text: `Deleted ${productIdsToDelete.length} products` }],
+    };
   }
-  for (const productId of productIdsToDelete) {
-    await stripe.products.del(productId);
-  }
-  return {
-    content: [{ type: 'text', text: `Deleted ${productIdsToDelete.length} products` }],
-  }
-})
+);
 
-server.registerTool('delete_stripe_test_customers', {
-  title: 'Delete Stripe Test Customers',
-  description: 'Permanently delete Stripe customers for testing purposes',
-  inputSchema: {
-    customer_ids: z.array(z.string()).describe('The IDs of the customers to delete'),
+server.registerTool(
+  'delete_stripe_test_customers',
+  {
+    title: 'Delete Stripe Test Customers',
+    description: 'Permanently delete Stripe customers for testing purposes',
+    inputSchema: {
+      customer_ids: z.array(z.string()).describe('The IDs of the customers to delete'),
+    },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+    },
   },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: true,
-  },
-}, async ({ customer_ids: customerIds }) => {
-  const stripe = createStripeClient(process.env.STRIPE_API_KEY);
-  for (const customerId of customerIds) {
-    await stripe.customers.del(customerId);
+  async ({ customer_ids: customerIds }) => {
+    const stripe = createStripeClient(process.env.STRIPE_API_KEY);
+    for (const customerId of customerIds) {
+      await stripe.customers.del(customerId);
+    }
+    return {
+      content: [{ type: 'text', text: `Deleted ${customerIds.length} customers` }],
+    };
   }
-  return {
-    content: [{ type: 'text', text: `Deleted ${customerIds.length} customers` }],
-  }
-})
+);
 
 server.registerTool(
   'create_stripe_test_customers',
@@ -248,7 +269,10 @@ server.registerTool(
       name: z.string().optional().describe('The name of the customers'),
       email: z.string().optional().describe('The email of the customers'),
       description: z.string().optional().describe('The description of the customers'),
-      test_clock: z.string().optional().describe('The ID of the test clock to associate with the customers'),
+      test_clock: z
+        .string()
+        .optional()
+        .describe('The ID of the test clock to associate with the customers'),
     },
     annotations: {
       readOnlyHint: false,
@@ -266,7 +290,7 @@ server.registerTool(
       customerCreationParams.payment_method = paymentMethodId;
       customerCreationParams.invoice_settings = {
         default_payment_method: paymentMethodId,
-      }
+      };
     }
     if (name) {
       customerCreationParams.name = name;
@@ -280,11 +304,13 @@ server.registerTool(
     if (test_clock) {
       if (number > 3) {
         return {
-          content: [{
-            type: 'text',
-            text: "You can not associate more than 3 customers to a test clock."
-          }]
-        }
+          content: [
+            {
+              type: 'text',
+              text: 'You can not associate more than 3 customers to a test clock.',
+            },
+          ],
+        };
       }
       customerCreationParams.test_clock = test_clock;
     }
@@ -301,7 +327,7 @@ server.registerTool(
           text: JSON.stringify({
             message: `Created ${customerIds.length} customers: ${customerIds.join(', ')}${test_clock ? `\nAssociated with test clock ${test_clock}` : ''}`,
             customerIds,
-          })
+          }),
         },
       ],
     };
