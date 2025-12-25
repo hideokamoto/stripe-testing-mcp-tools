@@ -185,21 +185,18 @@ server.registerTool(
   },
   async ({ product_ids: productIds, urls }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
-    let productIdsToDelete: string[] = [];
-    if (productIds) {
-      productIdsToDelete = productIds;
-    }
+    const productIdsToArchive: string[] = [...(productIds ?? [])];
     if (urls) {
       for await (const url of urls) {
         const { data: products } = await stripe.products.list({ url });
-        productIdsToDelete.push(...products.map(product => product.id));
+        productIdsToArchive.push(...products.map(product => product.id));
       }
     }
-    for (const productId of productIdsToDelete) {
-      await stripe.products.update(productId, { active: false });
-    }
+    await Promise.all(
+      productIdsToArchive.map(productId => stripe.products.update(productId, { active: false }))
+    );
     return {
-      content: [{ type: 'text', text: `Archived ${productIdsToDelete.length} products` }],
+      content: [{ type: 'text', text: `Archived ${productIdsToArchive.length} products` }],
     };
   }
 );
@@ -220,19 +217,14 @@ server.registerTool(
   },
   async ({ product_ids: productIds, urls }) => {
     const stripe = createStripeClient(process.env.STRIPE_API_KEY);
-    let productIdsToDelete: string[] = [];
-    if (productIds) {
-      productIdsToDelete = productIds;
-    }
+    const productIdsToDelete: string[] = [...(productIds ?? [])];
     if (urls) {
       for await (const url of urls) {
         const { data: products } = await stripe.products.list({ url });
         productIdsToDelete.push(...products.map(product => product.id));
       }
     }
-    for (const productId of productIdsToDelete) {
-      await stripe.products.del(productId);
-    }
+    await Promise.all(productIdsToDelete.map(productId => stripe.products.del(productId)));
     return {
       content: [{ type: 'text', text: `Deleted ${productIdsToDelete.length} products` }],
     };
