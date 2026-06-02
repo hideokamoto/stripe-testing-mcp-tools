@@ -1,21 +1,27 @@
 #!/usr/bin/env node
 
 /**
- * This is a template MCP server that implements a simple notes system.
- * It demonstrates core MCP concepts like resources, tools, and prompts.
+ * MCP server that provides helpers for testing Stripe integrations
+ * (e.g. test clocks). It only accepts Stripe test-mode keys and exposes
+ * a set of tools for working with Stripe test data.
  */
 
-import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import Stripe from 'stripe';
-import { object, z } from 'zod';
+import { z } from 'zod';
+
+/**
+ * Server version, kept in sync with package.json "version".
+ */
+const SERVER_VERSION = '0.2.0';
 
 /**
  * Create an MCP server
  */
 const server = new McpServer({
   name: 'Stripe Testing tools',
-  version: '0.1.0',
+  version: SERVER_VERSION,
 });
 
 /**
@@ -37,7 +43,7 @@ const createStripeClient = (apiKey?: string) => {
   validateStripeApiKey(apiKey);
   const stripe = new Stripe(apiKey!, {
     apiVersion: '2025-04-30.basil',
-    appInfo: { name: 'stripe-testing-tools-mcp', version: '0.1.0' },
+    appInfo: { name: 'stripe-testing-tools-mcp', version: SERVER_VERSION },
   });
   return stripe;
 };
