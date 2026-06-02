@@ -14,8 +14,10 @@ the test account stays tidy. Test mode only (live keys are rejected).
   - `number` (default 1), and optional `name`, `email`, `description`,
     `payment_method_id`, `test_clock`.
   - Every customer created here is tagged with
-    `metadata.generator = stripe-testing-tools-mcp`. Use this metadata to find
-    and bulk-clean test customers later.
+    `metadata.generator = stripe-testing-tools-mcp`. The MCP server has no tool
+    to list or search customers by metadata, so **record the ids returned at
+    creation** for later cleanup. The tag is still useful for finding leftovers
+    in the Stripe Dashboard or Stripe CLI.
   - If attaching a `test_clock`, keep `number` at most 3 (see
     `stripe-test-clock-constraints`).
 - **Subscriptions:** `create_stripe_test_subscription`
@@ -37,9 +39,12 @@ the test account stays tidy. Test mode only (live keys are rejected).
 Tear down dependents before their dependencies to avoid leftover references:
 
 1. **Delete customers:** `delete_stripe_test_customers`
-   - `customer_ids`: array of ids to delete. Deleting a customer also removes
-     its subscriptions, so do this before touching products. Collect the ids
-     returned at creation, or find them by the `generator` metadata.
+   - `customer_ids`: array of ids to delete. You must use the ids collected at
+     creation — the MCP cannot search customers by `generator` metadata. To
+     recover lost ids, look them up in the Stripe Dashboard or CLI.
+   - Deleting a customer immediately cancels its associated subscriptions
+     ([Stripe: Delete a customer](https://docs.stripe.com/api/customers/delete)),
+     so do this before touching products.
 2. **Archive products:** `archive_stripe_test_products`
    - `product_ids` and/or `urls`. Archiving sets `active: false` and is
      non-destructive (recoverable). Prefer this when a product may still be

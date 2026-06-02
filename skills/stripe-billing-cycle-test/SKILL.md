@@ -19,7 +19,6 @@ and the customer before the subscription.
 
 1. **Create the test clock.**
    Tool: `create_stripe_test_clock`
-
    - `frozen_time` (required): Unix timestamp in **seconds** for the starting
      time.
    - `name` (optional): a label to find it later.
@@ -27,7 +26,6 @@ and the customer before the subscription.
 
 2. **Create a customer attached to that clock.**
    Tool: `create_stripe_test_customers`
-
    - `test_clock`: the id from step 1.
    - `number`: keep it at most `3` (max 3 customers per clock).
    - `payment_method_id` (optional but recommended): attach a test payment
@@ -38,7 +36,6 @@ and the customer before the subscription.
 
 3. **Create the subscription.**
    Tool: `create_stripe_test_subscription`
-
    - `customer`: the id from step 2.
    - `items`: array of `{ price, quantity }`. The `price` must be a recurring
      price id from your test data.
@@ -49,18 +46,20 @@ and the customer before the subscription.
 
 4. **Advance the clock to the next billing date.**
    Tool: `advance_stripe_test_clock`
-
    - `test_clock_id`: the id from step 1.
    - `frozen_time`: a Unix timestamp (seconds) **after** the current frozen
      time. Advance is forward-only; you cannot move a clock backward. Pick a
      time just past the subscription's `current_period_end` to cross the
      renewal boundary.
 
-5. **Wait for the clock to become ready, then verify.**
-   - `advance_stripe_test_clock` returns the clock `status`. Advancing is
-     **asynchronous**: do not run follow-up steps until `status` is `ready`.
-     The tool reports the status in its response text; if it is still
-     `advancing`, wait and confirm it has settled before continuing.
+5. **Wait for the clock to settle, then verify.**
+   - `advance_stripe_test_clock` reports the clock `status` once, in its
+     response text. Advancing is **asynchronous**. This MCP server does not
+     expose a tool to retrieve or re-poll the clock, so you cannot
+     programmatically watch it transition to `ready`.
+   - If the response shows `advancing`, either wait a few seconds before
+     proceeding, or ask the user to confirm the clock has settled in the
+     Stripe Dashboard (test mode) before continuing.
    - Then confirm the new invoice for the renewed period was generated and has
      the expected amount and status. Inspect this in the Stripe Dashboard
      (test mode) or via the Stripe API, since the MCP does not expose an
@@ -69,8 +68,7 @@ and the customer before the subscription.
 ## Notes
 
 - `frozen_time` is always a Unix timestamp in seconds (not milliseconds).
-- Customers created by this MCP carry `metadata.generator =
-stripe-testing-tools-mcp`, useful for locating and cleaning them up later.
+- Customers created by this MCP are tagged with `metadata.generator = stripe-testing-tools-mcp`. The MCP cannot search customers by this tag, but it helps you locate them in the Stripe Dashboard or CLI; record the returned ids for programmatic cleanup.
 - For cleanup after verification, see the `stripe-test-data-lifecycle` skill.
 - For the full list of test-clock constraints, see the
   `stripe-test-clock-constraints` skill.

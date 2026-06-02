@@ -22,9 +22,11 @@ this MCP. Consult this before designing a time-simulation scenario.
   a clock; to test an earlier point, create a new clock.
 - **Advance is asynchronous.** After `advance_stripe_test_clock`, the clock
   enters an `advancing` state and processes billing events in the background.
-  Wait until `status` is `ready` before any follow-up operation or
-  verification. The tool returns the `status` in its response; do not assume
-  completion until it reads `ready`.
+  The tool returns the `status` once in its response, but this MCP server does
+  **not** expose a tool to retrieve or re-poll the clock, so you cannot
+  programmatically watch it reach `ready`. If the response shows `advancing`,
+  wait a few seconds before follow-up operations, or have the user confirm the
+  clock has settled in the Stripe Dashboard.
 
 ## Time format
 
