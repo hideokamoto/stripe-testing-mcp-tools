@@ -19,6 +19,7 @@ and the customer before the subscription.
 
 1. **Create the test clock.**
    Tool: `create_stripe_test_clock`
+
    - `frozen_time` (required): Unix timestamp in **seconds** for the starting
      time.
    - `name` (optional): a label to find it later.
@@ -26,6 +27,7 @@ and the customer before the subscription.
 
 2. **Create a customer attached to that clock.**
    Tool: `create_stripe_test_customers`
+
    - `test_clock`: the id from step 1.
    - `number`: keep it at most `3` (max 3 customers per clock).
    - `payment_method_id` (optional but recommended): attach a test payment
@@ -36,6 +38,7 @@ and the customer before the subscription.
 
 3. **Create the subscription.**
    Tool: `create_stripe_test_subscription`
+
    - `customer`: the id from step 2.
    - `items`: array of `{ price, quantity }`. The `price` must be a recurring
      price id from your test data.
@@ -46,6 +49,7 @@ and the customer before the subscription.
 
 4. **Advance the clock to the next billing date.**
    Tool: `advance_stripe_test_clock`
+
    - `test_clock_id`: the id from step 1.
    - `frozen_time`: a Unix timestamp (seconds) **after** the current frozen
      time. Advance is forward-only; you cannot move a clock backward. Pick a
