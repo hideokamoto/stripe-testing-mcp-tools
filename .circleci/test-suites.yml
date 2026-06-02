@@ -1,0 +1,20 @@
+---
+# Smarter Testing suite definition.
+# `circleci run testsuite "ci tests"` reads this file and drives:
+#   - test impact analysis (only the tests affected by the change are run)
+#   - dynamic, timing-aware splitting across the job's parallel containers
+#   - automatic rerun of just the failed tests
+#
+# discover : lists every test "atom" (here, spec files) so the platform knows
+#            the full universe of tests and can pick the relevant subset.
+# run      : how to execute a selected subset. << test.atoms >> is substituted
+#            with the files this container should run; << outputs.junit >> with
+#            the junit path below. --bail 0 keeps every selected test running so
+#            failures are reported in full (required for the rerun-failed step).
+# outputs  : where the JUnit XML lands; this same dir is given to
+#            store_test_results so results feed the impact/timing models.
+name: ci tests
+discover: npx vitest list --filesOnly
+run: npx vitest run --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
+outputs:
+  junit: test-results/junit.xml

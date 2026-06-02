@@ -44,26 +44,19 @@ jobs:
 
   test:
     executor: node
-    # Smart/parallel testing: spread the spec files across containers and let
-    # CircleCI split them by historical timing data (collected from the JUnit
-    # results stored below) for balanced runs.
+    # CircleCI Smarter Testing drives the run via `circleci run testsuite`
+    # (see .circleci/test-suites.yml). It performs test impact analysis to skip
+    # tests unaffected by the change, dynamically splits the selected tests
+    # across these parallel containers, and reruns only failed tests.
     parallelism: 2
     steps:
       - checkout
       - node/install-packages
       - run:
-          name: Run tests (timing-based split + JUnit)
-          command: |
-            mkdir -p test-results
-            TEST_FILES=$(circleci tests glob "src/**/*.test.ts" | circleci tests split --split-by=timings)
-            echo "This container will run:"
-            echo "$TEST_FILES"
-            npx vitest run $TEST_FILES \
-              --reporter=default \
-              --reporter=junit \
-              --outputFile.junit=./test-results/junit.xml
-      # Storing JUnit results powers both the CircleCI test insights UI and the
-      # --split-by=timings data used on the next run.
+          name: Smarter Testing (impact analysis + dynamic split + rerun)
+          command: circleci run testsuite "ci tests"
+      # JUnit results (path matches outputs.junit in test-suites.yml) feed the
+      # impact/timing models and the test insights UI.
       - store_test_results:
           path: test-results
 
