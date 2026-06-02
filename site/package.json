@@ -1,0 +1,33 @@
+{
+  "name": "stripe-fixtures-site",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Marketing landing page for the stripe-fixtures Agent Skill (EN + JA).",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "typecheck": "astro check",
+    "test": "vitest run",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
+  },
+  "dependencies": {
+    "astro": "^5.6.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "wrangler": "^4.20.0"
+  }
+}

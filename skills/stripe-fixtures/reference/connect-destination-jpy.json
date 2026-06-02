@@ -1,0 +1,64 @@
+{
+  "_meta": {
+    "template_version": 0
+  },
+  "fixtures": [
+    {
+      "name": "platform_cus",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Platform-side Customer (JPY)",
+        "metadata": {
+          "test_session": "stripe-fixtures-connect-jpy"
+        }
+      }
+    },
+    {
+      "name": "platform_pm",
+      "path": "/v1/payment_methods",
+      "method": "post",
+      "params": {
+        "type": "card",
+        "card": {
+          "number": "4242424242424242",
+          "exp_month": 12,
+          "exp_year": 2030,
+          "cvc": "314"
+        }
+      }
+    },
+    {
+      "name": "attach_platform_pm",
+      "path": "/v1/payment_methods/${platform_pm:id}/attach",
+      "method": "post",
+      "params": {
+        "customer": "${platform_cus:id}"
+      }
+    },
+    {
+      "name": "destination_charge",
+      "path": "/v1/payment_intents",
+      "method": "post",
+      "params": {
+        "amount": 10000,
+        "currency": "jpy",
+        "customer": "${platform_cus:id}",
+        "payment_method": "${platform_pm:id}",
+        "confirm": true,
+        "off_session": true,
+        "automatic_payment_methods": {
+          "enabled": true,
+          "allow_redirects": "never"
+        },
+        "application_fee_amount": 1000,
+        "transfer_data": {
+          "destination": "${.env:CONNECTED_ACCOUNT_ID}"
+        },
+        "metadata": {
+          "test_session": "stripe-fixtures-connect-jpy"
+        }
+      }
+    }
+  ]
+}

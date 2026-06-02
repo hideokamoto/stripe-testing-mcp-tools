@@ -1,0 +1,179 @@
+---
+import { content, githubUrl, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = content[lang];
+
+// Where the language switcher points, and its label.
+const altHref = lang === 'en' ? '/ja/' : '/';
+const altLabel = lang === 'en' ? '日本語' : 'English';
+const homeHref = lang === 'en' ? '/' : '/ja/';
+
+// Precompute terminal-line classes here to keep the template expression-only.
+const demoLines = c.demo.lines.map((line) => {
+  let cls = '';
+  if (line.startsWith('>')) cls = 'c-prompt';
+  else if (line.includes('✓')) cls = 'c-ok';
+  else if (line.startsWith('✶') || line.startsWith('$')) cls = 'c-dim';
+  return { line, cls };
+});
+---
+
+<!-- nav -->
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href={homeHref}>stripe-fixtures</a>
+    <span class="spacer"></span>
+    <a class="navlink" href={`${githubUrl}#readme`}>{c.nav.docs}</a>
+    <a class="navlink" href={githubUrl}>{c.nav.github}</a>
+    <a class="langswitch" href={altHref}>{altLabel}</a>
+  </div>
+</nav>
+
+<!-- hero -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">{c.hero.badge}</span>
+    <h1>{c.hero.headline}</h1>
+    <p class="sub">{c.hero.sub}</p>
+    <div class="install-inline">
+      <code class="code"><span class="prompt">$ </span>{c.hero.install}</code>
+    </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#install">{c.hero.ctaPrimary}</a>
+      <a class="btn btn-ghost" href={githubUrl}>{c.hero.ctaSecondary} →</a>
+    </div>
+  </div>
+</header>
+
+<!-- problem -->
+<section>
+  <div class="wrap">
+    <h2>{c.problem.heading}</h2>
+    <p class="lead">{c.problem.lead}</p>
+    <div class="ba-grid">
+      <div class="ba-card before">
+        <span class="tag">{c.problem.beforeLabel}</span>
+        <p>{c.problem.before}</p>
+      </div>
+      <div class="ba-card after">
+        <span class="tag">{c.problem.afterLabel}</span>
+        <p>{c.problem.after}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- demo -->
+<section>
+  <div class="wrap">
+    <h2>{c.demo.heading}</h2>
+    <p class="lead">{c.demo.lead}</p>
+    <div class="terminal">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="pre">
+        {demoLines.map((l) => (
+          <div class={l.cls}>{l.line || ' '}</div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- features -->
+<section>
+  <div class="wrap">
+    <h2>{c.features.heading}</h2>
+    <div class="feat-grid">
+      {c.features.items.map((f) => (
+        <div class="feat">
+          <h3>{f.title}</h3>
+          <p>{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- install -->
+<section id="install">
+  <div class="wrap install-block">
+    <h2>{c.install.heading}</h2>
+    <p class="lead">{c.install.lead}</p>
+    <p class="label">{c.install.claudeLabel}</p>
+    <code class="code"><span class="prompt">$ </span>{c.install.claude}</code>
+    <p class="label">{c.install.cursorLabel}</p>
+    <code class="code"><span class="prompt">$ </span>{c.install.cursor}</code>
+    <p class="prereq">{c.install.prereq}</p>
+  </div>
+</section>
+
+<!-- examples -->
+<section>
+  <div class="wrap">
+    <h2>{c.examples.heading}</h2>
+    <p class="lead">{c.examples.lead}</p>
+    <div class="ex-grid">
+      {c.examples.items.map((e) => (
+        <div class="ex">
+          <div class="q">{e.prompt}</div>
+          <div class="n">{e.note}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- compare -->
+<section>
+  <div class="wrap">
+    <h2>{c.compare.heading}</h2>
+    <p class="lead">{c.compare.lead}</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>{c.compare.cols.map((col) => <th scope="col">{col}</th>)}</tr>
+        </thead>
+        <tbody>
+          {c.compare.rows.map((row) => (
+            <tr>
+              <th scope="row">{row.label}</th>
+              {row.cells.map((cell) => <td>{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- faq -->
+<section>
+  <div class="wrap">
+    <h2>{c.faq.heading}</h2>
+    <div class="faq-list">
+      {c.faq.items.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- footer -->
+<footer>
+  <div class="wrap">
+    <p class="cta">{c.footer.cta}</p>
+    <div class="links">
+      <a href={githubUrl}>★ {c.footer.star}</a>
+      <a href={`${githubUrl}/issues`}>{c.footer.contribute}</a>
+      <a href={`${githubUrl}/blob/main/LICENSE`}>{c.footer.license}</a>
+    </div>
+    <p class="built">{c.footer.builtWith}</p>
+  </div>
+</footer>

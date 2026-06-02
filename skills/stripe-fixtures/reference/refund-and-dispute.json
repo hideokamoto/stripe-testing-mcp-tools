@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "template_version": 0
+  },
+  "fixtures": [
+    {
+      "name": "cus",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Refund Test Customer",
+        "metadata": {
+          "test_session": "stripe-fixtures-refund-dispute"
+        }
+      }
+    },
+    {
+      "name": "pm",
+      "path": "/v1/payment_methods",
+      "method": "post",
+      "params": {
+        "type": "card",
+        "card": {
+          "number": "4242424242424242",
+          "exp_month": 12,
+          "exp_year": 2030,
+          "cvc": "314"
+        }
+      }
+    },
+    {
+      "name": "attach_pm",
+      "path": "/v1/payment_methods/${pm:id}/attach",
+      "method": "post",
+      "params": {
+        "customer": "${cus:id}"
+      }
+    },
+    {
+      "name": "pi",
+      "path": "/v1/payment_intents",
+      "method": "post",
+      "params": {
+        "amount": 5000,
+        "currency": "usd",
+        "customer": "${cus:id}",
+        "payment_method": "${pm:id}",
+        "confirm": true,
+        "off_session": true,
+        "automatic_payment_methods": {
+          "enabled": true,
+          "allow_redirects": "never"
+        },
+        "metadata": {
+          "test_session": "stripe-fixtures-refund-dispute"
+        }
+      }
+    },
+    {
+      "name": "refund",
+      "path": "/v1/refunds",
+      "method": "post",
+      "params": {
+        "payment_intent": "${pi:id}",
+        "amount": 2500
+      }
+    }
+  ]
+}

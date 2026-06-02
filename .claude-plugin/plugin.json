@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "stripe-test-mcp",
   "version": "0.2.0",
-  "description": "Stripe testing MCP server bundled with Agent Skills for test clocks, billing-cycle simulation, and test-data lifecycle workflows.",
+  "description": "Stripe testing MCP server bundled with Agent Skills for test clocks, billing-cycle simulation, test-data lifecycle workflows, and declarative `stripe fixtures` JSON authoring.",
   "author": {
     "name": "hideokamoto"
   },

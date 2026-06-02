@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "template_version": 0
+  },
+  "fixtures": [
+    {
+      "name": "customer_001",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Bulk Test Customer 001",
+        "email": "bulk001@example.test",
+        "metadata": {
+          "test_session": "stripe-fixtures-bulk",
+          "bulk_index": "001"
+        }
+      }
+    },
+    {
+      "name": "customer_002",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Bulk Test Customer 002",
+        "email": "bulk002@example.test",
+        "metadata": {
+          "test_session": "stripe-fixtures-bulk",
+          "bulk_index": "002"
+        }
+      }
+    },
+    {
+      "name": "customer_003",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Bulk Test Customer 003",
+        "email": "bulk003@example.test",
+        "metadata": {
+          "test_session": "stripe-fixtures-bulk",
+          "bulk_index": "003"
+        }
+      }
+    },
+    {
+      "name": "customer_004",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Bulk Test Customer 004",
+        "email": "bulk004@example.test",
+        "metadata": {
+          "test_session": "stripe-fixtures-bulk",
+          "bulk_index": "004"
+        }
+      }
+    },
+    {
+      "name": "customer_005",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Bulk Test Customer 005",
+        "email": "bulk005@example.test",
+        "metadata": {
+          "test_session": "stripe-fixtures-bulk",
+          "bulk_index": "005"
+        }
+      }
+    }
+  ]
+}

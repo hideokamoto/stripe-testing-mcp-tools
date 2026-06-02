@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0a0a0f"/>
+  <!-- subtle grid lines -->
+  <line x1="0" y1="315" x2="1200" y2="315" stroke="#2a2a38" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="#2a2a38" stroke-width="1"/>
+  <!-- accent border -->
+  <rect x="0" y="0" width="1200" height="6" fill="#635bff"/>
+  <!-- logo mark -->
+  <rect x="80" y="80" width="56" height="56" rx="12" fill="#635bff"/>
+  <path d="M96 100 l16 18 l-16 18" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="116" y1="122" x2="128" y2="122" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- product name -->
+  <text x="152" y="120" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="28" font-weight="600" fill="#e7e7ef">stripe-fixtures</text>
+  <!-- badge -->
+  <rect x="80" y="168" width="310" height="34" rx="17" fill="none" stroke="#2a2a38" stroke-width="1.5"/>
+  <text x="235" y="191" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="14" fill="#9a9ab0" text-anchor="middle">Agent Skill · Apache-2.0</text>
+  <!-- headline -->
+  <text x="80" y="310" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="52" font-weight="700" fill="#ffffff" letter-spacing="-1">Describe a Stripe test scenario.</text>
+  <text x="80" y="378" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="52" font-weight="700" fill="#8a6cff" letter-spacing="-1">Get runnable fixture JSON.</text>
+  <!-- sub -->
+  <text x="80" y="448" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="24" fill="#9a9ab0">Plain language in. Validated stripe fixtures JSON out.</text>
+  <text x="80" y="484" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="24" fill="#9a9ab0">No schema lore. No doc-tab juggling.</text>
+  <!-- install snippet -->
+  <rect x="80" y="532" width="680" height="56" rx="10" fill="#16161f" stroke="#2a2a38" stroke-width="1.5"/>
+  <text x="110" y="567" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="20" fill="#8a6cff">$</text>
+  <text x="136" y="567" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="20" fill="#e7e7ef">npx skills add hideokamoto/stripe-fixtures-skills</text>
+  <!-- right side decorative terminal -->
+  <rect x="820" y="220" width="310" height="280" rx="12" fill="#16161f" stroke="#2a2a38" stroke-width="1.5"/>
+  <rect x="820" y="220" width="310" height="36" rx="12" fill="#1c1c28"/>
+  <rect x="820" y="244" width="310" height="12" fill="#1c1c28"/>
+  <circle cx="844" cy="238" r="6" fill="#ff5f56"/>
+  <circle cx="864" cy="238" r="6" fill="#ffbd2e"/>
+  <circle cx="884" cy="238" r="6" fill="#27c93f"/>
+  <text x="840" y="284" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#9a9ab0">$ stripe fixtures run</text>
+  <text x="840" y="312" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#4ade80">✓ template_version = 0</text>
+  <text x="840" y="336" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#4ade80">✓ all ${refs} defined</text>
+  <text x="840" y="360" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#4ade80">✓ array dot notation</text>
+  <text x="840" y="384" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#4ade80">✓ /v1/ paths valid</text>
+  <text x="840" y="420" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#9a9ab0">→ customer created</text>
+  <text x="840" y="444" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#9a9ab0">→ subscription active</text>
+  <text x="840" y="468" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="13" fill="#4ade80">✓ invoice.paid</text>
+</svg>

@@ -1,0 +1,109 @@
+{
+  "_meta": {
+    "template_version": 0
+  },
+  "fixtures": [
+    {
+      "name": "clock",
+      "path": "/v1/test_helpers/test_clocks",
+      "method": "post",
+      "params": {
+        "frozen_time": 1759276800,
+        "name": "failing-subscription-clock"
+      }
+    },
+    {
+      "name": "cus",
+      "path": "/v1/customers",
+      "method": "post",
+      "params": {
+        "name": "Failing Subscription Test Customer",
+        "description": "(created by stripe-fixtures skill)",
+        "test_clock": "${clock:id}",
+        "metadata": {
+          "test_session": "stripe-fixtures-failing-subscription"
+        }
+      }
+    },
+    {
+      "name": "pm",
+      "path": "/v1/payment_methods",
+      "method": "post",
+      "params": {
+        "type": "card",
+        "card": {
+          "number": "4000000000000341",
+          "exp_month": 12,
+          "exp_year": 2030,
+          "cvc": "314"
+        }
+      }
+    },
+    {
+      "name": "attach_pm",
+      "path": "/v1/payment_methods/${pm:id}/attach",
+      "method": "post",
+      "params": {
+        "customer": "${cus:id}"
+      }
+    },
+    {
+      "name": "default_pm",
+      "path": "/v1/customers/${cus:id}",
+      "method": "post",
+      "params": {
+        "invoice_settings": {
+          "default_payment_method": "${pm:id}"
+        }
+      }
+    },
+    {
+      "name": "product",
+      "path": "/v1/products",
+      "method": "post",
+      "params": {
+        "name": "Failing Subscription Test Product",
+        "metadata": {
+          "test_session": "stripe-fixtures-failing-subscription"
+        }
+      }
+    },
+    {
+      "name": "price",
+      "path": "/v1/prices",
+      "method": "post",
+      "params": {
+        "currency": "usd",
+        "unit_amount": 1000,
+        "product": "${product:id}",
+        "recurring": {
+          "interval": "month"
+        }
+      }
+    },
+    {
+      "name": "sub",
+      "path": "/v1/subscriptions",
+      "method": "post",
+      "params": {
+        "customer": "${cus:id}",
+        "items": [
+          {
+            "price": "${price:id}"
+          }
+        ],
+        "metadata": {
+          "test_session": "stripe-fixtures-failing-subscription"
+        }
+      }
+    },
+    {
+      "name": "advance_one_month",
+      "path": "/v1/test_helpers/test_clocks/${clock:id}/advance",
+      "method": "post",
+      "params": {
+        "frozen_time": 1761955200
+      }
+    }
+  ]
+}

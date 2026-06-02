@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Purely static Astro site -> served via Workers Static Assets.
+  // No "main" and no "binding": there is no Worker script, Cloudflare just
+  // serves the contents of ./dist (the Astro build output) directly.
+  "name": "stripe-fixtures-site",
+  "compatibility_date": "2026-06-02",
+  "assets": {
+    "directory": "./dist",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}
