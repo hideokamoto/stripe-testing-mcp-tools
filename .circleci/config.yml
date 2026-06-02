@@ -1,0 +1,76 @@
+version: 2.1
+
+# Node.js orb handles the toolchain install + dependency caching for us,
+# so individual jobs don't need to hand-roll npm cache keys.
+orbs:
+  node: circleci/node@5.3.0
+
+# Single executor reused by every job. The tag is pinned so CI matches the
+# runtime the project targets locally.
+executors:
+  node:
+    docker:
+      - image: cimg/node:22.22
+
+jobs:
+  lint:
+    executor: node
+    steps:
+      - checkout
+      # node/install-packages runs `npm ci` and restores/saves the npm cache
+      # keyed off package-lock.json.
+      - node/install-packages
+      - run:
+          name: Lint (prettier --check)
+          command: npm run format:check
+
+  typecheck:
+    executor: node
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Type check
+          command: npm run typecheck
+
+  build:
+    executor: node
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Build
+          command: npm run build
+
+  test:
+    executor: node
+    # Smart/parallel testing: spread the spec files across containers and let
+    # CircleCI split them by historical timing data (collected from the JUnit
+    # results stored below) for balanced runs.
+    parallelism: 2
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run tests (timing-based split + JUnit)
+          command: |
+            mkdir -p test-results
+            TEST_FILES=$(circleci tests glob "src/**/*.test.ts" | circleci tests split --split-by=timings)
+            echo "This container will run:"
+            echo "$TEST_FILES"
+            npx vitest run $TEST_FILES \
+              --reporter=default \
+              --reporter=junit \
+              --outputFile.junit=./test-results/junit.xml
+      # Storing JUnit results powers both the CircleCI test insights UI and the
+      # --split-by=timings data used on the next run.
+      - store_test_results:
+          path: test-results
+
+workflows:
+  ci:
+    jobs:
+      - lint
+      - typecheck
+      - build
+      - test
