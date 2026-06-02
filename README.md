@@ -211,6 +211,30 @@ Add the server to your Claude Desktop configuration:
    Use archive_stripe_test_products with product IDs or URLs
    ```
 
+## Agent Skills / Plugin
+
+This repository ships as a **Claude Code plugin** so that agents can use the
+Stripe testing tools with the right procedures and guardrails built in.
+
+The plugin bundles:
+
+- **`.claude-plugin/plugin.json`** - the plugin manifest.
+- **`.mcp.json`** - the MCP server definition (`npx stripe-test-mcp`, requiring
+  `STRIPE_API_KEY`), so the tools connect automatically when the plugin loads.
+- **`skills/`** - three Agent Skills that encode the recommended workflows:
+  - `stripe-billing-cycle-test` - simulate a subscription billing cycle with a
+    test clock (clock -> customer -> subscription -> advance -> verify).
+  - `stripe-test-clock-constraints` - reference for test-clock limits and
+    pitfalls (max 3 customers per clock, creation-time-only attachment,
+    forward-only async advance, Unix-second timestamps).
+  - `stripe-test-data-lifecycle` - setup, verification, and cleanup workflow
+    using the delete/archive tools.
+
+When this plugin is installed in Claude Code, the MCP tools become available
+and Claude can load the relevant skill automatically based on the task, or you
+can invoke one directly (for example `/stripe-test-mcp:stripe-billing-cycle-test`).
+Make sure `STRIPE_API_KEY` is set to a Stripe **test** key in your environment.
+
 ## Development
 
 ### Local Development

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "stripe-test-mcp": {
+      "command": "npx",
+      "args": ["-y", "stripe-test-mcp"],
+      "env": {
+        "STRIPE_API_KEY": "${STRIPE_API_KEY}"
+      }
+    }
+  }
+}
