@@ -1,17 +1,34 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// Static marketing LP. English at "/", Japanese at "/ja".
-// Deploys as static output (default) to Cloudflare Pages / GitHub Pages / any static host.
+// Static marketing LP, deployed as its own Worker (Workers Static Assets) and
+// mounted under a subpath of the parent site (revtrona.com, Next.js on Workers)
+// via Cloudflare Worker Routes — the parent site stays unchanged.
+//
+// Final URLs: EN  https://revtrona.com/tools/stripe-agent-skills-for-testing/
+//             JA  https://revtrona.com/tools/stripe-agent-skills-for-testing/ja/
+//
+// `base` is what makes the build emit files mirroring that path
+// (dist/tools/stripe-agent-skills-for-testing/...), so the Worker Route can
+// serve them directly. Both `site` and `base` can be overridden at build time.
+const base = process.env.BASE_PATH ?? '/tools/stripe-agent-skills-for-testing';
+
 export default defineConfig({
-  // Override with SITE_URL env var at build time (e.g. on Cloudflare Pages).
-  // Fallback is the expected Cloudflare Pages domain — update once confirmed.
-  site: process.env.SITE_URL ?? 'https://stripe-fixtures.pages.dev',
+  site: process.env.SITE_URL ?? 'https://revtrona.com',
+  base,
+  // Astro applies `base` to generated links but does NOT nest the output dir.
+  // Workers Static Assets match by full request path, so the built files must
+  // physically mirror the route path. Emit into ./dist<base> and point
+  // wrangler's assets.directory at ./dist (see wrangler.jsonc).
+  outDir: `./dist${base}`,
+  // Folder index pages are served with a trailing slash; keep links consistent
+  // with Workers Static Assets `auto-trailing-slash` handling.
+  trailingSlash: 'always',
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'ja'],
     routing: {
-      // EN served at root (/), JA at /ja — no /en prefix.
+      // EN served at <base>/, JA at <base>/ja — no /en prefix.
       prefixDefaultLocale: false,
     },
   },

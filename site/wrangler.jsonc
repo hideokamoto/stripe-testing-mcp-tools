@@ -3,12 +3,31 @@
   // Purely static Astro site -> served via Workers Static Assets.
   // No "main" and no "binding": there is no Worker script, Cloudflare just
   // serves the contents of ./dist (the Astro build output) directly.
+  //
+  // The site is built with Astro `base: /tools/stripe-agent-skills-for-testing`,
+  // so ./dist already mirrors that path (dist/tools/stripe-agent-skills-for-testing/...).
+  // The two routes below mount THIS worker under that subpath of the parent
+  // site (revtrona.com, Next.js on Workers). Cloudflare matches these routes at
+  // the edge before the parent worker is invoked; every other path falls through
+  // to the parent unchanged.
   "name": "stripe-fixtures-site",
   "compatibility_date": "2026-06-02",
   "assets": {
     "directory": "./dist",
+    // Folder index files served with a trailing slash (matches Astro trailingSlash: 'always').
+    "html_handling": "auto-trailing-slash"
   },
+  "routes": [
+    {
+      "pattern": "revtrona.com/tools/stripe-agent-skills-for-testing",
+      "zone_name": "revtrona.com"
+    },
+    {
+      "pattern": "revtrona.com/tools/stripe-agent-skills-for-testing/*",
+      "zone_name": "revtrona.com"
+    }
+  ],
   "observability": {
-    "enabled": true,
-  },
+    "enabled": true
+  }
 }
