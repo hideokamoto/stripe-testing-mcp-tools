@@ -66,13 +66,12 @@
 **用途**: Webhook テスト、最小構成の動作確認
 
 ### `refund-and-dispute.json`
-**シナリオ**: charge を作り、 refund を発行する、または dispute を作る。
+**シナリオ**: 1人の customer に対し、(1) 成功カードの charge を作って部分 refund を発行し、(2) 別途 dispute 誘発カードで charge を作って dispute を発生させる。
 
 **含まれる要素**:
-- payment_method
-- payment_intent (confirm 済み)
-- refund 作成
-- （または）dispute 作成（テストカード `4000000000000259` 系）
+- payment_method（成功カード `4242424242424242`）+ payment_intent (confirm 済み) + 部分 refund 作成
+- payment_method（dispute 誘発カード `4000000000000259`）+ payment_intent (confirm 済み)
+  - このカードは charge 成立後に **非同期で dispute（`charge.dispute.created`）が自動生成**される。`/v1/disputes` への直接 POST は不可で、誘発カードで起こすのが Stripe の作法
 
 **用途**: 返金フロー、 dispute フローの webhook テスト
 

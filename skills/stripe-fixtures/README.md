@@ -27,7 +27,7 @@ Stripe CLI の `stripe fixtures <filepath>` コマンドで実行可能な fixtu
 
 ## ディレクトリ構成
 
-```
+```text
 stripe-fixtures/
 ├── SKILL.md              # Skill の本体。対話プロトコル、検証手順
 ├── README.md             # このファイル
@@ -86,4 +86,4 @@ Claude が対話的に軸を確認し、 reference を下敷きに JSON を生�
 
 ## ライセンス
 
-MIT
+Apache-2.0（`SKILL.md` の frontmatter と一致）

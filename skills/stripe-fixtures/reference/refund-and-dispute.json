@@ -64,6 +64,48 @@
         "payment_intent": "${pi:id}",
         "amount": 2500
       }
+    },
+    {
+      "name": "pm_disputed",
+      "path": "/v1/payment_methods",
+      "method": "post",
+      "params": {
+        "type": "card",
+        "card": {
+          "number": "4000000000000259",
+          "exp_month": 12,
+          "exp_year": 2030,
+          "cvc": "314"
+        }
+      }
+    },
+    {
+      "name": "attach_pm_disputed",
+      "path": "/v1/payment_methods/${pm_disputed:id}/attach",
+      "method": "post",
+      "params": {
+        "customer": "${cus:id}"
+      }
+    },
+    {
+      "name": "pi_disputed",
+      "path": "/v1/payment_intents",
+      "method": "post",
+      "params": {
+        "amount": 6000,
+        "currency": "usd",
+        "customer": "${cus:id}",
+        "payment_method": "${pm_disputed:id}",
+        "confirm": true,
+        "off_session": true,
+        "automatic_payment_methods": {
+          "enabled": true,
+          "allow_redirects": "never"
+        },
+        "metadata": {
+          "test_session": "stripe-fixtures-refund-dispute"
+        }
+      }
     }
   ]
 }

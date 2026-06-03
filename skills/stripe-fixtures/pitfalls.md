@@ -10,7 +10,7 @@
 
 公式 docs（CLI Wiki）には以下の記法が示されている:
 
-```
+```text
 ${cus_jenny_rosen:subscriptions.data.[0].id}
 ```
 
