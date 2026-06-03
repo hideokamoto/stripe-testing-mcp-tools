@@ -1,0 +1,69 @@
+version: 2.1
+
+# Node.js orb handles the toolchain install + dependency caching for us,
+# so individual jobs don't need to hand-roll npm cache keys.
+orbs:
+  node: circleci/node@5.3.0
+
+# Single executor reused by every job. The tag is pinned so CI matches the
+# runtime the project targets locally.
+executors:
+  node:
+    docker:
+      - image: cimg/node:22.22
+
+jobs:
+  lint:
+    executor: node
+    steps:
+      - checkout
+      # node/install-packages runs `npm ci` and restores/saves the npm cache
+      # keyed off package-lock.json.
+      - node/install-packages
+      - run:
+          name: Lint (prettier --check)
+          command: npm run format:check
+
+  typecheck:
+    executor: node
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Type check
+          command: npm run typecheck
+
+  build:
+    executor: node
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Build
+          command: npm run build
+
+  test:
+    executor: node
+    # CircleCI Smarter Testing drives the run via `circleci run testsuite`
+    # (see .circleci/test-suites.yml). It performs test impact analysis to skip
+    # tests unaffected by the change, dynamically splits the selected tests
+    # across these parallel containers, and reruns only failed tests.
+    parallelism: 2
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Smarter Testing (impact analysis + dynamic split + rerun)
+          command: circleci run testsuite "ci tests"
+      # JUnit results (path matches outputs.junit in test-suites.yml) feed the
+      # impact/timing models and the test insights UI.
+      - store_test_results:
+          path: test-results
+
+workflows:
+  ci:
+    jobs:
+      - lint
+      - typecheck
+      - build
+      - test
