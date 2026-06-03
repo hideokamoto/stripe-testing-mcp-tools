@@ -216,12 +216,26 @@ Add the server to your Claude Desktop configuration:
 This repository ships as a **Claude Code plugin** so that agents can use the
 Stripe testing tools with the right procedures and guardrails built in.
 
-The plugin bundles:
+### Two lanes for Stripe testing
+
+This repository offers two complementary ways to set up Stripe test data — pick
+the one that matches your intent:
+
+- **Imperative lane (MCP tools)** — call the Stripe API right now to create and
+  advance test clocks, customers, and subscriptions. Best when you want to run
+  something and see the result immediately. Provided by the `stripe-test-mcp`
+  MCP server (above).
+- **Declarative lane (`stripe-fixtures` skill)** — generate `stripe fixtures`
+  JSON you run with the Stripe CLI. Best for test datasets you want to keep in
+  source control or reproduce in CI. The skill authors and statically validates
+  the JSON; you execute it.
+
+### What the plugin bundles
 
 - **`.claude-plugin/plugin.json`** - the plugin manifest.
 - **`.mcp.json`** - the MCP server definition (`npx stripe-test-mcp`, requiring
   `STRIPE_API_KEY`), so the tools connect automatically when the plugin loads.
-- **`skills/`** - three Agent Skills that encode the recommended workflows:
+- **`skills/`** - four Agent Skills that encode the recommended workflows:
   - `stripe-billing-cycle-test` - simulate a subscription billing cycle with a
     test clock (clock -> customer -> subscription -> advance -> verify).
   - `stripe-test-clock-constraints` - reference for test-clock limits and
@@ -229,11 +243,23 @@ The plugin bundles:
     forward-only async advance, Unix-second timestamps).
   - `stripe-test-data-lifecycle` - setup, verification, and cleanup workflow
     using the delete/archive tools.
+  - `stripe-fixtures` - author and statically validate `stripe fixtures` JSON
+    (multi-step subscriptions, test clocks, `expected_error_type` failure paths,
+    Connect destination charges, bulk creation) through guided conversation. See
+    [`skills/stripe-fixtures/README.md`](skills/stripe-fixtures/README.md).
 
 When this plugin is installed in Claude Code, the MCP tools become available
 and Claude can load the relevant skill automatically based on the task, or you
-can invoke one directly (for example `/stripe-test-mcp:stripe-billing-cycle-test`).
+can invoke one directly (for example `/stripe-test-mcp:stripe-billing-cycle-test`
+or `/stripe-test-mcp:stripe-fixtures`).
 Make sure `STRIPE_API_KEY` is set to a Stripe **test** key in your environment.
+
+## Landing site
+
+The `site/` directory holds the marketing landing page (Astro, EN + JA) for the
+`stripe-fixtures` skill. It is a self-contained project that manages its own
+dependencies with pnpm and deploys to Cloudflare Workers static assets. See
+[`site/README.md`](site/README.md) for development and deploy instructions.
 
 ## Development
 
@@ -288,3 +314,12 @@ The Inspector provides a web interface for testing and debugging MCP tools.
 - Live API keys are blocked with security warnings
 - Test clock customer limits are enforced (max 3 customers per clock)
 - Invalid parameters are validated using Zod schemas
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+The `skills/stripe-fixtures` skill and the `site/` landing page were merged in
+from the former `stripe-fixtures-skills` repository, which was licensed under
+**Apache-2.0**. That skill keeps its original `license: Apache-2.0` declaration
+in its `SKILL.md` front matter; everything else in this repository is MIT.
