@@ -72,7 +72,7 @@ export interface LocaleContent {
   };
 }
 
-export const githubUrl = 'https://github.com/hideokamoto/stripe-fixtures-skills';
+export const githubUrl = 'https://github.com/hideokamoto/stripe-testing-mcp-tools';
 
 export const content: Record<Lang, LocaleContent> = {
   en: {
@@ -86,7 +86,7 @@ export const content: Record<Lang, LocaleContent> = {
       headline: 'Describe a Stripe test scenario. Get runnable fixture JSON.',
       sub: 'stripe-fixtures is an Agent Skill that turns plain language into validated `stripe fixtures` JSON — no schema lore, no doc-tab juggling.',
       installLabel: 'Install',
-      install: 'npx skills add hideokamoto/stripe-fixtures-skills',
+      install: 'npx skills add hideokamoto/stripe-testing-mcp-tools --skill stripe-fixtures',
       ctaPrimary: 'Get started',
       ctaSecondary: 'View on GitHub',
     },
@@ -151,9 +151,9 @@ export const content: Record<Lang, LocaleContent> = {
       heading: 'Install',
       lead: 'Add the skill to your agent, then describe a scenario.',
       claudeLabel: 'Claude Code',
-      claude: 'npx skills add hideokamoto/stripe-fixtures-skills',
+      claude: 'npx skills add hideokamoto/stripe-testing-mcp-tools --skill stripe-fixtures',
       cursorLabel: 'Or pin a version with gh skill',
-      cursor: 'gh skill install hideokamoto/stripe-fixtures-skills stripe-fixtures',
+      cursor: 'gh skill install hideokamoto/stripe-testing-mcp-tools stripe-fixtures',
       prereq:
         'Requires the Stripe CLI and a test-mode key (`sk_test_…`). You run `stripe fixtures` locally — the skill never touches your account.',
     },
@@ -237,7 +237,7 @@ export const content: Record<Lang, LocaleContent> = {
       headline: 'Stripe のテストシナリオを書くだけ。実行可能な fixture JSON が返る。',
       sub: 'stripe-fixtures は、自然言語を検証済みの `stripe fixtures` JSON に変える Agent Skill。スキーマの暗記も docs タブの往復も不要です。',
       installLabel: 'インストール',
-      install: 'npx skills add hideokamoto/stripe-fixtures-skills',
+      install: 'npx skills add hideokamoto/stripe-testing-mcp-tools --skill stripe-fixtures',
       ctaPrimary: 'はじめる',
       ctaSecondary: 'GitHub で見る',
     },
@@ -302,9 +302,9 @@ export const content: Record<Lang, LocaleContent> = {
       heading: 'インストール',
       lead: 'スキルをエージェントに追加し、シナリオを伝えるだけ。',
       claudeLabel: 'Claude Code',
-      claude: 'npx skills add hideokamoto/stripe-fixtures-skills',
+      claude: 'npx skills add hideokamoto/stripe-testing-mcp-tools --skill stripe-fixtures',
       cursorLabel: 'gh skill でバージョン固定する場合',
-      cursor: 'gh skill install hideokamoto/stripe-fixtures-skills stripe-fixtures',
+      cursor: 'gh skill install hideokamoto/stripe-testing-mcp-tools stripe-fixtures',
       prereq:
         'Stripe CLI と test mode key（`sk_test_…`）が必要です。`stripe fixtures` の実行はあなたの環境で行い、スキルがアカウントに触れることはありません。',
     },
