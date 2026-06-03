@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.22.0",
-    "stripe": "^18.1.1",
+    "stripe": "^22.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
