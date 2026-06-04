@@ -60,6 +60,32 @@ jobs:
       - store_test_results:
           path: test-results
 
+  # The landing page (site/) is a separate pnpm + Astro project, so it can't
+  # reuse the node orb's npm-based cache/install. We activate pnpm via corepack
+  # and run the site's own type-check / test / build. (A pnpm store cache can
+  # be layered on later if this job gets slow.)
+  site:
+    executor: node
+    working_directory: ~/project/site
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Enable pnpm (corepack)
+          command: sudo corepack enable && corepack prepare pnpm@10 --activate
+      - run:
+          name: Install dependencies (pnpm)
+          command: pnpm install --frozen-lockfile
+      - run:
+          name: Type check (astro check)
+          command: pnpm run typecheck
+      - run:
+          name: Test (vitest)
+          command: pnpm run test
+      - run:
+          name: Build (Astro)
+          command: pnpm run build
+
 workflows:
   ci:
     jobs:
@@ -67,3 +93,4 @@ workflows:
       - typecheck
       - build
       - test
+      - site

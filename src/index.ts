@@ -42,7 +42,7 @@ export function validateStripeApiKey(apiKey?: string): void {
 const createStripeClient = (apiKey?: string) => {
   validateStripeApiKey(apiKey);
   const stripe = new Stripe(apiKey!, {
-    apiVersion: '2025-04-30.basil',
+    apiVersion: '2026-05-27.dahlia',
     appInfo: { name: 'stripe-testing-tools-mcp', version: SERVER_VERSION },
   });
   return stripe;

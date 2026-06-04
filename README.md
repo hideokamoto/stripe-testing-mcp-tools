@@ -113,6 +113,7 @@ Creates a test subscription for a customer.
 - `customer` (required): Customer ID to create the subscription for
 - `items` (required): Array of subscription items with price and quantity
 - `proration_behavior` (optional): How to handle prorations (`create_prorations`, `none`, `always_invoice`)
+- `payment_method_id` (optional): Payment method ID to set as the subscription's default payment method
 
 ## Setup
 
