@@ -1,10 +1,16 @@
 version: 2
+# CI runs on CircleCI (see .circleci/config.yml), so there are no GitHub
+# Actions workflows to update here. CircleCI orb bumps aren't supported by
+# Dependabot and are handled manually.
 updates:
+  # Root MCP server (npm).
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  # Landing site (site/) — its own pnpm project (pnpm-lock.yaml v9), merged in
+  # with the monorepo and previously not covered by Dependabot.
+  - package-ecosystem: 'npm'
+    directory: '/site'
     schedule:
       interval: 'weekly'
