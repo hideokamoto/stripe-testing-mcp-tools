@@ -6,6 +6,10 @@ interface Props {
   c: LocaleContent;
 }
 const { c } = Astro.props;
+// `base` prefix (with trailing slash), e.g. "/tools/stripe-agent-skills-for-testing/".
+// All site-internal links/assets must sit under it once the LP is mounted on a subpath.
+const base = import.meta.env.BASE_URL;
+// Astro.url.pathname already includes `base`, so canonical resolves correctly.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
@@ -17,19 +21,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <title>{c.title}</title>
     <meta name="description" content={c.description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- hreflang: this LP exists in EN (/) and JA (/ja) -->
-    <link rel="alternate" hreflang="en" href={new URL('/', Astro.site).href} />
-    <link rel="alternate" hreflang="ja" href={new URL('/ja/', Astro.site).href} />
-    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site).href} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <!-- hreflang: this LP exists in EN (<base>/) and JA (<base>/ja/) -->
+    <link rel="alternate" hreflang="en" href={new URL(base, Astro.site).href} />
+    <link rel="alternate" hreflang="ja" href={new URL(`${base}ja/`, Astro.site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(base, Astro.site).href} />
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={c.title} />
     <meta property="og:description" content={c.description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL('/og-image.svg', Astro.site).href} />
+    <meta property="og:image" content={new URL(`${base}og-image.svg`, Astro.site).href} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content={new URL('/og-image.svg', Astro.site).href} />
+    <meta name="twitter:image" content={new URL(`${base}og-image.svg`, Astro.site).href} />
   </head>
   <body>
     <slot />

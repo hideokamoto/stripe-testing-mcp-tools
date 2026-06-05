@@ -7,10 +7,12 @@ interface Props {
 const { lang } = Astro.props;
 const c = content[lang];
 
+// `base` prefix (with trailing slash) so links resolve under the mounted subpath.
+const base = import.meta.env.BASE_URL;
 // Where the language switcher points, and its label.
-const altHref = lang === 'en' ? '/ja/' : '/';
+const altHref = lang === 'en' ? `${base}ja/` : base;
 const altLabel = lang === 'en' ? '日本語' : 'English';
-const homeHref = lang === 'en' ? '/' : '/ja/';
+const homeHref = lang === 'en' ? base : `${base}ja/`;
 
 // Precompute terminal-line classes here to keep the template expression-only.
 const demoLines = c.demo.lines.map((line) => {
