@@ -11,7 +11,10 @@ import { defineConfig } from 'astro/config';
 // `base` is what makes the build emit files mirroring that path
 // (dist/tools/stripe-agent-skills-for-testing/...), so the Worker Route can
 // serve them directly. Both `site` and `base` can be overridden at build time.
-const base = process.env.BASE_PATH ?? '/tools/stripe-agent-skills-for-testing';
+// Normalize to a guaranteed leading slash so a BASE_PATH override without one
+// (e.g. "tools/foo") still yields a valid base and ./dist/tools/foo outDir.
+const rawBase = process.env.BASE_PATH ?? '/tools/stripe-agent-skills-for-testing';
+const base = rawBase.startsWith('/') ? rawBase : `/${rawBase}`;
 
 export default defineConfig({
   site: process.env.SITE_URL ?? 'https://revtrona.com',
