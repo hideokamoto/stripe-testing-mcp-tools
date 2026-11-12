@@ -275,22 +275,22 @@ git clone <repository-url>
 cd stripe-testing-tools
 ```
 
-2. Install dependencies:
+2. Install dependencies (the repository uses pnpm; the version is pinned by `packageManager` in `package.json`, so `corepack enable` picks it up):
 
 ```bash
-npm install
+pnpm install
 ```
 
 3. Build the server:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 4. For development with auto-rebuild:
 
 ```bash
-npm run watch
+pnpm run watch
 ```
 
 ### Debugging
@@ -298,10 +298,19 @@ npm run watch
 Since MCP servers communicate over stdio, debugging can be challenging. Use the MCP Inspector:
 
 ```bash
-npm run inspector
+pnpm run inspector
 ```
 
 The Inspector provides a web interface for testing and debugging MCP tools.
+
+### Releasing
+
+Releases are automated. Merging to `main` runs semantic-release on CircleCI
+(`workflows/publish/npm-polyrepo-semantic-release.yaml` in
+`hideokamoto/circleci-configurations`): it decides the next version from the
+Conventional Commits since the last `v*` tag, pushes the tag, publishes to npm via
+OIDC trusted publishing, and creates the GitHub Release. Do not bump `version` in
+`package.json` or publish by hand.
 
 ## Security
 

@@ -1,6 +1,6 @@
 ---
 # Smarter Testing suite definition.
-# `circleci run testsuite "ci tests"` reads this file and drives:
+# `circleci testsuite run "ci tests"` reads this file and drives:
 #   - test impact analysis (only the tests affected by the change are run)
 #   - dynamic, timing-aware splitting across the job's parallel containers
 #   - automatic rerun of just the failed tests
@@ -14,7 +14,7 @@
 # outputs  : where the JUnit XML lands; this same dir is given to
 #            store_test_results so results feed the impact/timing models.
 name: ci tests
-discover: npx vitest list --filesOnly
-run: npx vitest run --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
+discover: pnpm exec vitest list --filesOnly
+run: pnpm exec vitest run --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
 outputs:
   junit: test-results/junit.xml

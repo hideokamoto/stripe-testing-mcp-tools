@@ -1,7 +1,7 @@
 version: 2.1
 
 # Node.js orb handles the toolchain install + dependency caching for us,
-# so individual jobs don't need to hand-roll npm cache keys.
+# so individual jobs don't need to hand-roll pnpm cache keys.
 orbs:
   node: circleci/node@5.3.0
 
@@ -17,51 +17,77 @@ jobs:
     executor: node
     steps:
       - checkout
-      # node/install-packages runs `npm ci` and restores/saves the npm cache
-      # keyed off package-lock.json.
-      - node/install-packages
+      # pnpm is not on the image by default; corepack provides the version pinned
+      # by `packageManager` in package.json.
+      - run:
+          name: Enable pnpm (corepack)
+          command: sudo corepack enable && corepack install
+          environment:
+            COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+      # node/install-packages runs `pnpm install --frozen-lockfile` and
+      # restores/saves node_modules keyed off pnpm-lock.yaml.
+      - node/install-packages:
+          pkg-manager: pnpm
       - run:
           name: Lint (prettier --check)
-          command: npm run format:check
+          command: pnpm run lint
 
   typecheck:
     executor: node
     steps:
       - checkout
-      - node/install-packages
+      - run:
+          name: Enable pnpm (corepack)
+          command: sudo corepack enable && corepack install
+          environment:
+            COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+      - node/install-packages:
+          pkg-manager: pnpm
       - run:
           name: Type check
-          command: npm run typecheck
+          command: pnpm run typecheck
 
   build:
     executor: node
     steps:
       - checkout
-      - node/install-packages
+      - run:
+          name: Enable pnpm (corepack)
+          command: sudo corepack enable && corepack install
+          environment:
+            COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+      - node/install-packages:
+          pkg-manager: pnpm
       - run:
           name: Build
-          command: npm run build
+          command: pnpm run build
 
   test:
     executor: node
-    # CircleCI Smarter Testing drives the run via `circleci run testsuite`
+    # CircleCI Smarter Testing drives the run via `circleci testsuite run`
     # (see .circleci/test-suites.yml). It performs test impact analysis to skip
     # tests unaffected by the change, dynamically splits the selected tests
     # across these parallel containers, and reruns only failed tests.
     parallelism: 2
     steps:
       - checkout
-      - node/install-packages
+      - run:
+          name: Enable pnpm (corepack)
+          command: sudo corepack enable && corepack install
+          environment:
+            COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+      - node/install-packages:
+          pkg-manager: pnpm
       - run:
           name: Smarter Testing (impact analysis + dynamic split + rerun)
-          command: circleci run testsuite "ci tests"
+          command: circleci testsuite run "ci tests"
       # JUnit results (path matches outputs.junit in test-suites.yml) feed the
       # impact/timing models and the test insights UI.
       - store_test_results:
           path: test-results
 
-  # The landing page (site/) is a separate pnpm + Astro project, so it can't
-  # reuse the node orb's npm-based cache/install. We activate pnpm via corepack
+  # The landing page (site/) is a separate pnpm + Astro project with its own
+  # lockfile, so it doesn't reuse the root install. We activate pnpm via corepack
   # and run the site's own type-check / test / build. (A pnpm store cache can
   # be layered on later if this job gets slow.)
   site:
