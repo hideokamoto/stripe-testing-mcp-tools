@@ -64,7 +64,7 @@ jobs:
 
   test:
     executor: node
-    # CircleCI Smarter Testing drives the run via `circleci run testsuite`
+    # CircleCI Smarter Testing drives the run via `circleci testsuite run`
     # (see .circleci/test-suites.yml). It performs test impact analysis to skip
     # tests unaffected by the change, dynamically splits the selected tests
     # across these parallel containers, and reruns only failed tests.
@@ -80,7 +80,7 @@ jobs:
           pkg-manager: pnpm
       - run:
           name: Smarter Testing (impact analysis + dynamic split + rerun)
-          command: circleci run testsuite "ci tests"
+          command: circleci testsuite run "ci tests"
       # JUnit results (path matches outputs.junit in test-suites.yml) feed the
       # impact/timing models and the test insights UI.
       - store_test_results:

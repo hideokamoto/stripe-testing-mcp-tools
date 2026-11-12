@@ -1,6 +1,6 @@
 ---
 # Smarter Testing suite definition.
-# `circleci run testsuite "ci tests"` reads this file and drives:
+# `circleci testsuite run "ci tests"` reads this file and drives:
 #   - test impact analysis (only the tests affected by the change are run)
 #   - dynamic, timing-aware splitting across the job's parallel containers
 #   - automatic rerun of just the failed tests
