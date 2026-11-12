@@ -36,6 +36,7 @@
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -53,5 +54,6 @@
     "prettier": "^3.8.3",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
-  }
+  },
+  "packageManager": "pnpm@10.34.9"
 }

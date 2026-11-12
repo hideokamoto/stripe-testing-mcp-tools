@@ -14,7 +14,7 @@
 # outputs  : where the JUnit XML lands; this same dir is given to
 #            store_test_results so results feed the impact/timing models.
 name: ci tests
-discover: npx vitest list --filesOnly
-run: npx vitest run --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
+discover: pnpm exec vitest list --filesOnly
+run: pnpm exec vitest run --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
 outputs:
   junit: test-results/junit.xml
