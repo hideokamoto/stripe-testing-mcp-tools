@@ -40,6 +40,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "deploy": "pnpm --dir site install --frozen-lockfile && pnpm --dir site run deploy",
     "release": "np"
   },
   "dependencies": {
