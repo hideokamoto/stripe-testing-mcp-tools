@@ -1,7 +1,14 @@
 # stripe-fixtures — landing page
 
 Marketing landing page for the [`stripe-fixtures`](../skills/stripe-fixtures) Agent Skill.
-Built with [Astro](https://astro.build) as a static site. English at `/`, Japanese at `/ja`.
+Built with [Astro](https://astro.build) as a static site.
+
+It ships as its **own** Cloudflare Worker (Workers Static Assets) and is mounted under a
+subpath of the parent site (`revtrona.com`, Next.js on Workers) via Worker Routes — the
+parent site stays unchanged. Live URLs:
+
+- English → `https://revtrona.com/tools/stripe-agent-skills-for-testing/`
+- Japanese → `https://revtrona.com/tools/stripe-agent-skills-for-testing/ja/`
 
 ## Why plain Astro (and not Starlight)?
 
@@ -32,18 +39,32 @@ All copy lives in [`src/i18n/content.ts`](src/i18n/content.ts) as `content.en` /
 The page components (`src/components/Landing.astro`, `src/layouts/Base.astro`) are
 language-agnostic and render from that object, so adding/editing copy never touches markup.
 
-- English → [`src/pages/index.astro`](src/pages/index.astro) → served at `/`
-- Japanese → [`src/pages/ja/index.astro`](src/pages/ja/index.astro) → served at `/ja`
+- English → [`src/pages/index.astro`](src/pages/index.astro) → served at `<base>/`
+- Japanese → [`src/pages/ja/index.astro`](src/pages/ja/index.astro) → served at `<base>/ja/`
 - Language switcher and `hreflang` tags are wired in `Landing.astro` / `Base.astro`.
 
-Update `site` in [`astro.config.mjs`](astro.config.mjs) to the production URL so canonical
-and `hreflang` links resolve correctly.
+All internal links and assets resolve through `import.meta.env.BASE_URL`, so the LP keeps
+working when mounted under the `base` subpath. `site` (`https://revtrona.com`) and `base`
+(`/tools/stripe-agent-skills-for-testing`) are set in [`astro.config.mjs`](astro.config.mjs)
+and can be overridden at build time via the `SITE_URL` / `BASE_PATH` env vars.
 
 ## Deploy (Cloudflare Workers — static assets)
 
 The site is purely pre-rendered, so it ships via [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/):
 no adapter and no Worker script. [`wrangler.jsonc`](wrangler.jsonc) points `assets.directory`
 at `./dist`, and Cloudflare serves those files directly.
+
+Because Astro builds with `base: /tools/stripe-agent-skills-for-testing`, `./dist` already
+mirrors that path (`dist/tools/stripe-agent-skills-for-testing/...`). The two `routes` in
+`wrangler.jsonc` (`revtrona.com/tools/stripe-agent-skills-for-testing` and `.../*`) mount
+this Worker under that subpath; Cloudflare matches them at the edge before the parent
+Worker runs, and every other path falls through to the parent unchanged. See Cloudflare's
+[Serving a subdirectory](https://developers.cloudflare.com/workers/static-assets/routing/advanced/serving-a-subdirectory/)
+docs.
+
+**Requirements (Cloudflare side):** `revtrona.com` must be a Zone in the target Cloudflare
+account, the `CLOUDFLARE_API_TOKEN` must have Workers Routes edit rights on that zone, and
+the parent site must not use the `/tools/stripe-agent-skills-for-testing*` path namespace.
 
 Deploy on every push to `main` by running, from `site/`:
 
