@@ -24,7 +24,7 @@
     "claude"
   ],
   "bin": {
-    "stripe-test-mcp": "./build/index.js"
+    "stripe-test-mcp": "build/index.js"
   },
   "files": [
     "build"
@@ -32,13 +32,15 @@
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
+    "prepublishOnly": "node --test test/package.test.mjs",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run && node --test test/package.test.mjs",
+    "test:package": "node --test test/package.test.mjs",
     "test:watch": "vitest",
     "deploy": "pnpm --dir site install --frozen-lockfile && pnpm --dir site run deploy",
     "release": "np"
