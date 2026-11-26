@@ -14,7 +14,7 @@
     "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
-    "astro": "^5.6.0"
+    "astro": "^7.4.13"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
