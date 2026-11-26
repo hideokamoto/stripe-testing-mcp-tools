@@ -86,6 +86,25 @@ jobs:
       - store_test_results:
           path: test-results
 
+  # Checks the package the way npm publishes it (test/package.test.mjs): npm
+  # must not need to auto-correct package.json, and every bin target must be in
+  # the tarball, executable and start with a node shebang. Runs outside Smarter
+  # Testing so impact analysis can never skip it when only package.json changes.
+  package:
+    executor: node
+    steps:
+      - checkout
+      - run:
+          name: Enable pnpm (corepack)
+          command: sudo corepack enable && corepack install
+          environment:
+            COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run:
+          name: Package check (bin survives npm publish normalization)
+          command: pnpm run test:package
+
   # The landing page (site/) is a separate pnpm + Astro project with its own
   # lockfile, so it doesn't reuse the root install. We activate pnpm via corepack
   # and run the site's own type-check / test / build. (A pnpm store cache can
@@ -119,4 +138,5 @@ workflows:
       - typecheck
       - build
       - test
+      - package
       - site
