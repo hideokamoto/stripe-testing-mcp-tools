@@ -11,8 +11,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import {
+  copyFileSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,5 +62,66 @@ test('every bin target is in the tarball, executable, and starts with a node she
     assert.ok(file.mode & 0o111, `bin "${name}" (${target}) is not executable in the tarball`);
     const firstLine = readFileSync(join(root, target), 'utf8').split('\n', 1)[0];
     assert.equal(firstLine, '#!/usr/bin/env node', `bin "${name}" (${target}) has no node shebang`);
+  }
+});
+
+// Sends an MCP initialize request to the server at `entry` over stdio and
+// resolves with the serverInfo it answers with.
+function initialize(entry) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [entry], {
+      env: { ...process.env, STRIPE_API_KEY: 'sk_test_package_check' },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const timer = setTimeout(() => {
+      child.kill();
+      reject(new Error('the server did not answer initialize within 15s'));
+    }, 15000);
+    let stdout = '';
+    child.stdout.on('data', chunk => {
+      stdout += chunk;
+      const line = stdout.split('\n').find(l => l.includes('"id":1'));
+      if (line) {
+        clearTimeout(timer);
+        child.kill();
+        resolve(JSON.parse(line).result.serverInfo);
+      }
+    });
+    child.on('error', reject);
+    child.stdin.write(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: {
+          protocolVersion: '2025-06-18',
+          capabilities: {},
+          clientInfo: { name: 'package-check', version: '0.0.0' },
+        },
+      }) + '\n'
+    );
+  });
+}
+
+// semantic-release writes the release version into package.json right before
+// `npm publish`, and never commits it back. The server must report the version
+// of the package it is running from, not one written into the source.
+test('the published server reports the version in its package.json', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-version-'));
+  try {
+    const [report] = JSON.parse(npm(['pack', '--json', '--pack-destination', dir], root));
+    execFileSync('tar', ['xzf', join(dir, report.filename), '-C', dir]);
+    const packed = join(dir, 'package');
+    const manifestPath = join(packed, 'package.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    manifest.version = '99.98.97';
+    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+    // The tarball has no dependencies; use the ones this repo installed.
+    symlinkSync(join(root, 'node_modules'), join(packed, 'node_modules'), 'dir');
+
+    const serverInfo = await initialize(join(packed, pkg.bin['stripe-test-mcp']));
+    assert.equal(serverInfo.version, '99.98.97');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
