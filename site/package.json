@@ -13,13 +13,6 @@
     "test": "vitest run",
     "deploy": "astro build && wrangler deploy"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
-      "workerd"
-    ]
-  },
   "dependencies": {
     "astro": "^5.6.0"
   },

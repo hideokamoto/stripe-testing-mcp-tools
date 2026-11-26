@@ -1,0 +1,6 @@
+# pnpm 11 以降は package.json の "pnpm" フィールドを読まないため、
+# ビルドスクリプトの許可はここに置く（allowBuilds は pnpm 10.26 以降で有効）。
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
