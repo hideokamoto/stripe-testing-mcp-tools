@@ -10,11 +10,17 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import Stripe from 'stripe';
 import { z } from 'zod';
+import { readFileSync } from 'node:fs';
 
 /**
- * Server version, kept in sync with package.json "version".
+ * Server version, read from the package.json this file is installed with
+ * (build/index.js -> ../package.json). semantic-release writes the release
+ * version there right before publishing and never commits it back, so a
+ * version written into the source would go stale.
  */
-const SERVER_VERSION = '0.2.0';
+const SERVER_VERSION: string = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8')
+).version;
 
 /**
  * Create an MCP server
