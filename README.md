@@ -312,6 +312,13 @@ Conventional Commits since the last `v*` tag, pushes the tag, publishes to npm v
 OIDC trusted publishing, and creates the GitHub Release. Do not bump `version` in
 `package.json` or publish by hand.
 
+`pnpm run test:package` checks the package the way npm publishes it: `npm pkg fix`
+must leave `package.json` unchanged (otherwise `npm publish` rewrites it and only
+warns), and the `stripe-test-mcp` bin must be in the tarball, executable and start
+with a node shebang. It runs in the CircleCI `package` job, as part of `pnpm test`,
+and as `prepublishOnly`, so a release stops before publishing a package whose
+`npx stripe-test-mcp` would not start.
+
 ## Security
 
 - Only Stripe test API keys are accepted

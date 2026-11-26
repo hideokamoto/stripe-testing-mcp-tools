@@ -24,7 +24,7 @@
     "claude"
   ],
   "bin": {
-    "stripe-test-mcp": "./build/index.js"
+    "stripe-test-mcp": "build/index.js"
   },
   "files": [
     "build"
@@ -32,6 +32,7 @@
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
+    "prepublishOnly": "node --test test/package.test.mjs",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "format": "prettier --write .",
