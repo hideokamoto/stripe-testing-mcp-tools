@@ -37,7 +37,6 @@ updates:
         dependency-type: 'development'
     # astro check（@astrojs/language-server）が TypeScript 7 のネイティブ版に未対応で、
     # 6.x の API が無いと型チェックが止まる。対応するまで 7 以上は上げない。
-    # https://github.com/withastro/roadmap/discussions/1321
     ignore:
       - dependency-name: 'typescript'
         versions: ['>=7']
