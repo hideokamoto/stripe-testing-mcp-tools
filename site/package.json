@@ -17,10 +17,10 @@
     "astro": "^5.6.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@types/node": "^22.10.5",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5",
-    "wrangler": "^4.20.0"
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^26.6.6",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.1",
+    "wrangler": "^4.166.0"
   }
 }
