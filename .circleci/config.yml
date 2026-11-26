@@ -88,7 +88,8 @@ jobs:
 
   # Checks the package the way npm publishes it (test/package.test.mjs): npm
   # must not need to auto-correct package.json, and every bin target must be in
-  # the tarball, executable and start with a node shebang. Runs outside Smarter
+  # the tarball, executable and start with a node shebang, and the packed server
+  # must report the version in its package.json. Runs outside Smarter
   # Testing so impact analysis can never skip it when only package.json changes.
   package:
     executor: node
@@ -102,7 +103,7 @@ jobs:
       - node/install-packages:
           pkg-manager: pnpm
       - run:
-          name: Package check (bin survives npm publish normalization)
+          name: Package check (bin and version as npm publishes them)
           command: pnpm run test:package
 
   # The landing page (site/) is a separate pnpm + Astro project with its own

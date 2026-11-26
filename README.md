@@ -315,7 +315,9 @@ OIDC trusted publishing, and creates the GitHub Release. Do not bump `version` i
 `pnpm run test:package` checks the package the way npm publishes it: `npm pkg fix`
 must leave `package.json` unchanged (otherwise `npm publish` rewrites it and only
 warns), and the `stripe-test-mcp` bin must be in the tarball, executable and start
-with a node shebang. It runs in the CircleCI `package` job, as part of `pnpm test`,
+with a node shebang, and the packed server must report the version written in its
+`package.json` (semantic-release sets it only at publish time). It runs in the
+CircleCI `package` job, as part of `pnpm test`,
 and as `prepublishOnly`, so a release stops before publishing a package whose
 `npx stripe-test-mcp` would not start.
 
