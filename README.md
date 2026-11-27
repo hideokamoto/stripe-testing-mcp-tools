@@ -233,11 +233,13 @@ the one that matches your intent:
 
 ### What the plugin bundles
 
-- **`.claude-plugin/plugin.json`** - the plugin manifest.
-- **`.mcp.json`** - the MCP server definition (`npx -y stripe-test-mcp@<version>`,
-  pinned to the release named by `version` in `plugin.json`), so the tools
-  connect automatically when the plugin loads. The server gets your Stripe key
-  from the plugin's `stripe_api_key` option, not from your shell environment.
+- **`.claude-plugin/plugin.json`** - the plugin manifest, including the MCP
+  server definition (`npx -y stripe-test-mcp@<version>` under `mcpServers`,
+  pinned to the release named by `version`), so the tools connect automatically
+  when the plugin loads. The server gets your Stripe key from the plugin's
+  `stripe_api_key` option, not from your shell environment. The repository has
+  no root `.mcp.json`, so opening it directly in Claude Code starts no project
+  server; to try the plugin from a checkout, run `claude --plugin-dir .`.
 - **`skills/`** - four Agent Skills that encode the recommended workflows:
   - `stripe-billing-cycle-test` - simulate a subscription billing cycle with a
     test clock (clock -> customer -> subscription -> advance -> verify).
@@ -345,9 +347,9 @@ CircleCI `package` job, as part of `pnpm test`,
 and as `prepublishOnly`, so a release stops before publishing a package whose
 `npx stripe-test-mcp` would not start.
 
-The Claude Code plugin pins the server it runs (`stripe-test-mcp@<version>` in
-`.mcp.json`) and names the same release as `version` in `.claude-plugin/plugin.json`,
-because the Claude plugin directory refuses an unpinned `npx` and Claude Code keys
+The Claude Code plugin pins the server it runs (`stripe-test-mcp@<version>` under
+`mcpServers` in `.claude-plugin/plugin.json`) and names the same release as
+`version` in the same file, because the Claude plugin directory refuses an unpinned `npx` and Claude Code keys
 plugin updates on `version`. semantic-release does not commit back to `main`, so
 after each release raise both to the new version in a follow-up `chore:` commit
 (a `chore:` commit doesn't start another release). The CircleCI `plugin` job runs

@@ -21,6 +21,15 @@
       "sensitive": true
     }
   },
+  "mcpServers": {
+    "stripe-test-mcp": {
+      "command": "npx",
+      "args": ["-y", "stripe-test-mcp@0.3.1"],
+      "env": {
+        "STRIPE_API_KEY": "${user_config.stripe_api_key}"
+      }
+    }
+  },
   "network": {
     "hosts": ["api.stripe.com", "registry.npmjs.org"]
   }

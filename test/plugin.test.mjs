@@ -1,4 +1,4 @@
-// Checks the Claude Code plugin files (.claude-plugin/plugin.json and .mcp.json)
+// Checks the Claude Code plugin manifest (.claude-plugin/plugin.json)
 // against the rules of the Claude plugin directory that a schema check alone
 // does not catch (https://claude.com/docs/plugins/pre-submission-checklist):
 //
@@ -11,15 +11,20 @@
 //
 // The last test compares the pinned version with the npm `latest` dist-tag.
 // semantic-release publishes from main without committing the version back,
-// so after each release the pin in .mcp.json and the version in plugin.json
-// have to be raised in a follow-up commit; this test is what says so.
+// so after each release the pinned server and `version` in plugin.json have
+// to be raised in a follow-up commit; this test is what says so.
+//
+// The MCP server is declared inline in plugin.json (`mcpServers`), not in a
+// .mcp.json at the repository root: Claude Code also reads a root .mcp.json as
+// project-scoped config when this repository is opened directly, and project
+// scope does not resolve `${user_config.*}`. The first test keeps it that way.
 //
 // Run with `pnpm run test:plugin` (node:test, no build step needed).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,7 +33,6 @@ const readJson = path => JSON.parse(readFileSync(join(root, path), 'utf8'));
 
 const pkg = readJson('package.json');
 const plugin = readJson('.claude-plugin/plugin.json');
-const mcp = readJson('.mcp.json');
 
 const LAUNCHERS = new Set(['npx', 'bunx', 'pnpm', 'yarn', 'uvx', 'pipx', 'uv']);
 const EXACT_SEMVER = /^\d+\.\d+\.\d+$/;
@@ -41,13 +45,18 @@ function pinnedVersion(arg, name) {
   return EXACT_SEMVER.test(version) ? version : undefined;
 }
 
-const servers = Object.entries(mcp.mcpServers ?? {});
+const mcpServers = plugin.mcpServers ?? {};
+const servers = Object.entries(mcpServers);
 
-test('.mcp.json declares the stripe-test-mcp server', () => {
-  assert.ok(mcp.mcpServers?.[pkg.name], `.mcp.json has no "${pkg.name}" server`);
+test('plugin.json declares the stripe-test-mcp server inline, with no root .mcp.json', () => {
+  assert.ok(
+    !existsSync(join(root, '.mcp.json')),
+    'a root .mcp.json is also loaded as project-scoped config, where ${user_config.*} is not resolved; declare servers in plugin.json'
+  );
+  assert.ok(mcpServers[pkg.name], `plugin.json mcpServers has no "${pkg.name}" server`);
 });
 
-test('every package launcher in .mcp.json runs an exact version', () => {
+test('every package launcher in plugin.json runs an exact version', () => {
   for (const [name, server] of servers) {
     if (!LAUNCHERS.has(server.command)) continue;
     const packages = (server.args ?? []).filter(arg => !arg.startsWith('-'));
@@ -63,9 +72,9 @@ test('every package launcher in .mcp.json runs an exact version', () => {
 });
 
 test('the plugin runs this repository package, and plugin.json names the same version', () => {
-  const args = mcp.mcpServers[pkg.name].args ?? [];
+  const args = mcpServers[pkg.name].args ?? [];
   const pinned = args.map(arg => pinnedVersion(arg, pkg.name)).find(Boolean);
-  assert.ok(pinned, `.mcp.json does not run ${pkg.name}@<exact version>`);
+  assert.ok(pinned, `plugin.json mcpServers does not run ${pkg.name}@<exact version>`);
   assert.equal(
     plugin.version,
     pinned,
@@ -99,7 +108,7 @@ test('MCP server env values come only from sensitive userConfig options', () => 
 });
 
 test('the pinned server is the latest release on npm', () => {
-  const args = mcp.mcpServers[pkg.name].args ?? [];
+  const args = mcpServers[pkg.name].args ?? [];
   const pinned = args.map(arg => pinnedVersion(arg, pkg.name)).find(Boolean);
   const latest = execFileSync('npm', ['view', pkg.name, 'dist-tags.latest'], {
     cwd: root,
@@ -109,7 +118,7 @@ test('the pinned server is the latest release on npm', () => {
   assert.equal(
     pinned,
     latest,
-    `npm latest is ${pkg.name}@${latest}, but .mcp.json pins ${pinned}. ` +
-      `Set "${pkg.name}@${latest}" in .mcp.json and "version": "${latest}" in .claude-plugin/plugin.json.`
+    `npm latest is ${pkg.name}@${latest}, but plugin.json pins ${pinned}. ` +
+      `Set "${pkg.name}@${latest}" in mcpServers and "version": "${latest}" in .claude-plugin/plugin.json.`
   );
 });
