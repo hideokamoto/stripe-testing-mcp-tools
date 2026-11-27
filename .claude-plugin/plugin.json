@@ -1,13 +1,27 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "stripe-test-mcp",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "Stripe testing MCP server bundled with Agent Skills for test clocks, billing-cycle simulation, test-data lifecycle workflows, and declarative `stripe fixtures` JSON authoring.",
   "author": {
     "name": "hideokamoto"
   },
   "homepage": "https://github.com/hideokamoto/stripe-testing-mcp-tools#readme",
   "repository": "https://github.com/hideokamoto/stripe-testing-mcp-tools",
+  "documentationUrl": "https://github.com/hideokamoto/stripe-testing-mcp-tools#readme",
+  "supportUrl": "https://github.com/hideokamoto/stripe-testing-mcp-tools/issues",
   "license": "MIT",
-  "keywords": ["stripe", "testing", "mcp", "test-clock", "billing", "skills"]
+  "keywords": ["stripe", "testing", "mcp", "test-clock", "billing", "skills"],
+  "userConfig": {
+    "stripe_api_key": {
+      "type": "string",
+      "title": "Stripe test secret key",
+      "description": "A Stripe test-mode secret or restricted key (sk_test_... or rk_test_...). Live keys are rejected by the server.",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "network": {
+    "hosts": ["api.stripe.com", "registry.npmjs.org"]
+  }
 }
