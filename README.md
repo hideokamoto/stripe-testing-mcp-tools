@@ -234,8 +234,10 @@ the one that matches your intent:
 ### What the plugin bundles
 
 - **`.claude-plugin/plugin.json`** - the plugin manifest.
-- **`.mcp.json`** - the MCP server definition (`npx stripe-test-mcp`, requiring
-  `STRIPE_API_KEY`), so the tools connect automatically when the plugin loads.
+- **`.mcp.json`** - the MCP server definition (`npx -y stripe-test-mcp@<version>`,
+  pinned to the release named by `version` in `plugin.json`), so the tools
+  connect automatically when the plugin loads. The server gets your Stripe key
+  from the plugin's `stripe_api_key` option, not from your shell environment.
 - **`skills/`** - four Agent Skills that encode the recommended workflows:
   - `stripe-billing-cycle-test` - simulate a subscription billing cycle with a
     test clock (clock -> customer -> subscription -> advance -> verify).
@@ -253,7 +255,29 @@ When this plugin is installed in Claude Code, the MCP tools become available
 and Claude can load the relevant skill automatically based on the task, or you
 can invoke one directly (for example `/stripe-test-mcp:stripe-billing-cycle-test`
 or `/stripe-test-mcp:stripe-fixtures`).
-Make sure `STRIPE_API_KEY` is set to a Stripe **test** key in your environment.
+
+When you enable the plugin, Claude Code asks for a **Stripe test secret key**
+(`sk_test_...` or `rk_test_...`). The field is marked sensitive, so Claude Code
+masks it and keeps it in your system's secure credential store, not in
+`settings.json`. The server rejects live keys.
+
+### What the plugin runs and sends
+
+- **Runs:** `npx -y stripe-test-mcp@<version>`, which downloads that exact
+  version of this package from the npm registry (`registry.npmjs.org`) and
+  starts it over stdio. Nothing else is started, and the plugin has no hooks.
+- **Sends:** only requests to the Stripe API (`api.stripe.com`), authenticated
+  with the test key you entered, and only when Claude calls one of the tools
+  listed above. The server contacts no other host. The Stripe Node.js SDK adds
+  its standard client headers (`User-Agent`, and `X-Stripe-Client-Telemetry`
+  with the previous request's ID and latency) to those same requests.
+- **Changes:** the tools create test clocks, customers and subscriptions, advance
+  test clocks, archive or delete test products, and delete test customers in your
+  Stripe test mode. Each tool declares `readOnlyHint: false`, and the delete and
+  archive tools also declare `destructiveHint: true`.
+- **Skills:** the four skills are Markdown instructions and reference JSON. The
+  `stripe-fixtures` skill writes fixture JSON for you to run with the Stripe CLI
+  yourself; it doesn't run the CLI.
 
 ## Landing site
 
@@ -320,6 +344,16 @@ with a node shebang, and the packed server must report the version written in it
 CircleCI `package` job, as part of `pnpm test`,
 and as `prepublishOnly`, so a release stops before publishing a package whose
 `npx stripe-test-mcp` would not start.
+
+The Claude Code plugin pins the server it runs (`stripe-test-mcp@<version>` in
+`.mcp.json`) and names the same release as `version` in `.claude-plugin/plugin.json`,
+because the Claude plugin directory refuses an unpinned `npx` and Claude Code keys
+plugin updates on `version`. semantic-release does not commit back to `main`, so
+after each release raise both to the new version in a follow-up `chore:` commit
+(a `chore:` commit doesn't start another release). The CircleCI `plugin` job runs
+`pnpm run test:plugin`, which fails until the pin matches npm `latest` and prints
+the two values to set, and then runs Claude Code's
+`claude plugin validate --profile directory`.
 
 ## Security
 
