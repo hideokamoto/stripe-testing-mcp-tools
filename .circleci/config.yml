@@ -106,6 +106,24 @@ jobs:
           name: Package check (bin and version as npm publishes them)
           command: pnpm run test:package
 
+  # Checks the Claude Code plugin the way the Claude plugin directory reads it.
+  # test/plugin.test.mjs covers the rules a schema check misses (exact npx pin,
+  # credentials only through sensitive userConfig, plugin.json version equal to
+  # the pinned server, pin equal to npm latest). `claude plugin validate
+  # --profile directory` is Claude Code's own validator with the directory's
+  # checks; it exits 1 when the directory would refuse the submission. The
+  # Claude Code version is pinned so the result doesn't change under us.
+  plugin:
+    executor: node
+    steps:
+      - checkout
+      - run:
+          name: Plugin rules (test/plugin.test.mjs)
+          command: node --test test/plugin.test.mjs
+      - run:
+          name: Claude Code plugin validate (directory profile)
+          command: npx -y @anthropic-ai/claude-code@2.1.332 plugin validate --profile directory .
+
   # The landing page (site/) is a separate pnpm + Astro project with its own
   # lockfile, so it doesn't reuse the root install. We activate pnpm via corepack
   # and run the site's own type-check / test / build. (A pnpm store cache can
@@ -140,4 +158,5 @@ workflows:
       - build
       - test
       - package
+      - plugin
       - site
